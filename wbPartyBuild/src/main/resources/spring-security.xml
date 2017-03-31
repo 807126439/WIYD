@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"  
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 	 
+	                    http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-3.2.xsd                    
+                        http://www.springframework.org/schema/security 
+                        http://www.springframework.org/schema/security/spring-security-3.2.xsd "> 
+ 	
+ 	<context:component-scan base-package="com.wb.core.spring.security.*" />
+
+	<!-- 定义上下文返回的消息的国际化 -->  
+	<bean id="messageSource"   class="org.springframework.context.support.ReloadableResourceBundleMessageSource">  
+	    <property name="basename"  
+	        value="classpath:messages_zh_CN"/>  
+	</bean>  
+	
+
+
+
+	<!-- 配置用户验证 -->
+	<bean id="myUserDetailsService" class="com.wb.core.spring.security.service.MyUserDetailsServiceImpl" />
+	
+	<!-- 配置访问决定处理器 -->	
+	<bean id="myAccessDecisionManager" class="com.wb.core.spring.security.service.MyAccessDecisionManagerImpl" />
+	
+	<!-- 权限资源映射数据源-->	
+	<bean id="myInvocationSecurityMetadataSource" class="com.wb.core.spring.security.service.MyInvocationSecurityMetadataSourceImpl" init-method="loadResourceDefine" />
+
+
+	
+	 <bean id="myFilterSecurityInterceptor" class="com.wb.core.spring.security.service.MyFilterSecurityInterceptorImpl">
+	 	<property name="authenticationManager" ref="authenticationManager"></property>
+	 	<property name="accessDecisionManager" ref="myAccessDecisionManager"></property>
+	 	<property name="securityMetadataSource" ref="myInvocationSecurityMetadataSource"></property> 
+	 	
+	 </bean>
+	
+	
+	<!-- 配置加密策略 -->
+	<bean id="shaPasswordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+		<!-- 加密方式 SHA-256 -->
+		<constructor-arg value="256" />
+	</bean>
+    
+    <!-- 配置密码的盐值 -->
+	<bean id="saltSource"	class="org.springframework.security.authentication.dao.ReflectionSaltSource">
+		<!-- 以用户名作为加密盐值 -->
+		<property name="userPropertyToUse" value="username"></property>
+	</bean>
+	
+		 
+	<!-- 配置登录入口 -->
+	<bean name="authenticationEntryPoint" class="com.wb.core.spring.security.handler.MyLoginUrlAuthenticationEntryPoint">
+     	<property name="loginFormUrl" value="/goLogin.jsp"></property>
+   
+    </bean>
+   
+   <!-- 配置默认登录失败页面 -->
+    <bean name="authenticationFailureHandler" class="com.wb.core.spring.security.handler.MyAuthenticationFailureHandler">
+   	    <property name="defaultFailureUrl" value="/login.jsp"></property>  
+    </bean>
+    
+    <!-- 配置登录成功后转入页面 -->
+    <bean name="authenticationSuccessHandler" class="com.wb.core.spring.security.handler.MyAuthenticationSuccessHandler">
+       <property name="defaultTargetUrl" value="/portals.do"></property>  
+       <property name="targetUrlParameter" value="j_url"></property>  
+    </bean>
+	
+	 <!-- 配置退出后转入页面 -->
+    <bean name="logoutSuccessHandler" class="com.wb.core.spring.security.handler.MylogoutSuccessHandler">
+       <property name="defaultTargetUrl" value="/login.jsp"></property>      
+    </bean>
+	
+	
+	
+	<!-- 自定义登陆验证过滤器 --> 
+	<bean id="loginFilter" class="com.wb.core.spring.security.filter.MyAuthenticationFilter" >
+     <!-- 登陆页面URL -->
+  	 <property name="usernameParameter" value="UserID"></property>
+     <property name="filterProcessesUrl" value="/j_spring_security_check"></property>
+     <!-- 校验用户名及密码，并对用户授权 -->
+     <property name="authenticationManager"  ref="authenticationManager"></property>
+     <!-- 验证未通过所执行的请求 --> 
+     <property name="authenticationFailureHandler" ref="authenticationFailureHandler"></property>
+     <!-- 验证通过所执行的请求 -->
+     <property name="authenticationSuccessHandler" ref="authenticationSuccessHandler"></property>
+      <!-- 自动登录 -->
+     <property name="rememberMeServices" ref="rememberMeServices" ></property>
+     <property name="sessionAuthenticationStrategy" ref="concurrentSessionControlStrategy"></property>
+   	 <property name="postOnly" value="false"></property>
+   	 
+   	 
+   </bean>
+	 
+	 
+	
+       
+
+	
+
+    <!-- 登录页面不过滤 -->
+    <security:http pattern="/login.jsp" security="none"/>
+    <security:http pattern="/goLogin.jsp" security="none"/>  
+    <security:http pattern="/plug-in/**" security="none"/>
+    <security:http pattern="/Kaptcha.jpg/**" security="none"/>
+
+    
+    <security:http access-denied-page='/page/common/error/accessDenied.jsp' entry-point-ref="authenticationEntryPoint">
+    	<security:logout logout-url="/j_spring_security_logout"  success-handler-ref="logoutSuccessHandler" invalidate-session="true" delete-cookies="wwbt_remember_me" />
+    
+        <security:session-management invalid-session-url="/sessionError.jsp" session-authentication-strategy-ref="concurrentSessionControlStrategy" >
+
+        </security:session-management>
+        
+  		<security:custom-filter ref="loginFilter"  position="FORM_LOGIN_FILTER"  />
+  		<security:custom-filter ref="myFilterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR"/>
+  		<security:custom-filter ref="concurrentSessionFilter"   position="CONCURRENT_SESSION_FILTER"/>
+        <security:custom-filter ref="rememberMeAuthenticationFilter"   position="REMEMBER_ME_FILTER "/>
+       
+       
+    </security:http>
+	
+	
+
+    <!-- SESSION并发配置 -->
+	<bean id="concurrentSessionControlStrategy" class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+		<constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+		<property name="maximumSessions" value="3" />
+		<property name="exceptionIfMaximumExceeded" value="false" />
+	</bean>
+	
+	<!-- SESSION并发处理 -->
+	<bean id="concurrentSessionFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+		<property name="sessionRegistry" ref="sessionRegistry" />
+		<property name="expiredUrl" value="/sessionError.jsp" />
+	    <property name="logoutHandlers">
+			<list>
+				<ref bean="logoutHandler" />
+			</list>
+		</property>
+	</bean>
+
+     <!-- 注销监听器  -->
+	<bean id="logoutHandler" class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler">
+  		 <property name="invalidateHttpSession" value="true"></property>
+	</bean>
+
+
+	<bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+	
+	<security:authentication-manager alias="authenticationManager" erase-credentials="false" >
+		<security:authentication-provider ref="authenticationProvider" />
+		<security:authentication-provider ref="SSOAuthenticationProvider" />
+		<security:authentication-provider ref="rememberMeAuhenticationProvider"/>
+	</security:authentication-manager>
+    
+ 
+    
+    <bean  id="rememberMeAuhenticationProvider" class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
+      <property name="key"  value="wwbt8NSmtajdzLbCJG"></property>
+    </bean>
+    
+ 
+    <!-- 自定义rememberMeFilter -->
+    <bean id="rememberMeAuthenticationFilter" class="com.wb.core.spring.security.filter.MyRememberMeAuthenticationFilter">  
+        <property name="rememberMeServices" ref="rememberMeServices" />  
+        <property name="authenticationManager"  ref="authenticationManager" />  		
+   </bean> 
+    
+    
+    
+    
+    <!-- 配置Cookies自动登录 
+	<bean id="rememberMeServices"
+		class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+		<property name="key" value="wwbt8NSmtajdzLbCJG" />
+		<property name="cookieName" value="wwbt_remember_me" />
+		<property name="alwaysRemember" value="false"></property>		
+		<property name="parameter" value="rememberMe" />
+		<property name="tokenValiditySeconds" value="1209600"></property>
+		<property name="userDetailsService" ref="myUserDetailsService" />
+	
+	</bean>-->
+    
+   <!-- 持久层RememberMeServices的实现 -->
+   <bean id="rememberMeServices"
+   class="org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices">
+      <property name="userDetailsService" ref="myUserDetailsService" />
+      <property name="key" value="wwbt8NSmtajdzLbCJG" />
+      <property name="cookieName" value="wwbt_remember_me" />
+	  <property name="alwaysRemember" value="false"></property>	
+	  <property name="tokenValiditySeconds" value="1209600"></property>
+      <property name="parameter" value="rememberMe"/>
+      <!-- 指定PersistentTokenRepository -->
+      <property name="tokenRepository">
+         <bean class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
+            <!-- 数据源 -->
+            <property name="dataSource" ref="dataSource"/>
+            <!-- 是否在系统启动时创建持久化token的数据库表 -->
+            <property name="createTableOnStartup" value="false"/>
+         </bean>
+      </property>
+   </bean>
+    
+    
+    <bean id="authenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">  
+	     <property name="hideUserNotFoundExceptions" value="false" />  
+	     <property name="userDetailsService" ref="myUserDetailsService" />  
+	     <property name="saltSource" ref="saltSource"></property>
+	     <property name="passwordEncoder" ref="shaPasswordEncoder"></property>   
+   </bean>  
+    
+    
+    
+   <bean id="SSOAuthenticationProvider" class="com.wb.core.spring.security.authentication.dao.SSODaoAuthenticationProvider">   
+	     <property name="userDetailsService" ref="myUserDetailsService" />   
+   </bean>  
+ 
+    
+      
+    
+ 
+    
+    
+    
+    </beans>

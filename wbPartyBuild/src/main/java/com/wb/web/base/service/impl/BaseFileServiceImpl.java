@@ -1,0 +1,454 @@
+package com.wb.web.base.service.impl;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import com.wb.core.common.dto.DownLoadDTO;
+import com.wb.core.common.exception.MyException;
+import com.wb.core.common.service.BaseService;
+import com.wb.core.common.utils.Assert;
+import com.wb.core.utils.FileMd5;
+import com.wb.core.utils.FileOperation;
+import com.wb.core.utils.ImageWaterMark;
+import com.wb.core.utils.ImgCompress;
+import com.wb.core.utils.PathHelper;
+import com.wb.core.utils.PatternHelper;
+import com.wb.core.utils.SizeCalculation;
+import com.wb.core.utils.VideoInfoUtils;
+import com.wb.core.utils.pojo.VideoInfoItem;
+import com.wb.web.base.dao.IBaseFileDao;
+import com.wb.web.base.dto.result.SaveResult;
+import com.wb.web.base.entity.BaseFile;
+import com.wb.web.base.service.IBaseFileService;
+import com.wb.web.system.dao.IZonePathDao;
+import com.wb.web.system.dto.zone.ZonePathDTO;
+import com.wb.web.system.entity.ZonePath;
+import com.wb.web.system.service.IZonePathService;
+
+@Service("baseFileService")
+@Transactional
+public class BaseFileServiceImpl extends BaseService implements IBaseFileService{
+	@Resource
+	private IBaseFileDao baseFileDao;
+	@Resource
+	private IZonePathService zonePathService;
+	@Resource
+	private IZonePathDao zonePathDao;
+	
+	
+	/**
+	 * 保存文件
+	 * 预览的文件与源文件保存在不同的目录
+	 * @param uploadFile
+	 * @return
+	 * @throws IOException 
+	 */
+	public SaveResult addBaseFile(CommonsMultipartFile uploadFile){
+		
+		if(uploadFile!=null){
+		
+			ZonePathDTO zp = this.zonePathService.getUseableZone(ZonePath.COMMON_FILE);	
+			
+			//路径生成
+			PathHelper pathHelper = new PathHelper(zp.getPath(), uploadFile.getOriginalFilename(),false);
+	   		
+			String realName = pathHelper.getRealFileName();
+			String savePath = pathHelper.getSavePath();
+			String fullPath = pathHelper.getFullPath();   			
+		    String transferPath  = pathHelper.getSwfPath();
+		    String fileType = pathHelper.getFileType();
+		    
+		    PatternHelper ph = new PatternHelper(fileType,uploadFile,zp.getPath()+ ZonePath.Compress,pathHelper.getPicPartPath());
+				    
+		    BaseFile baseFile = new BaseFile(
+		    					uploadFile.getOriginalFilename(), 
+		    					realName, 
+		    					fileType, 
+		    					uploadFile.getContentType(),
+		    					SizeCalculation.getDataSize(uploadFile.getSize()), 
+		    					uploadFile.getSize(),
+		    					FileMd5.fileMD5(uploadFile),
+		    					pathHelper.getFileKind(), 
+		    					ph.getPattern(), 
+		    					ph.getBigPattern(), 
+		    					ph.getWidth(),
+		    					ph.getHeigth(),
+		    					ph.getWidthRatio(), 
+		    					ph.getHeigthRatio(), 
+		    					ph.getMarker(),
+		    					ph.getModelNum(),
+		    					savePath,
+		    					transferPath,
+		    					zp.getId(),
+		    					pathHelper.getTurnStatus(),
+		    					getNowUser().getUsername()); 
+		   
+		    this.baseFileDao.save(baseFile);
+		    
+		    File saveFile = new File(fullPath);
+		    
+		    try {
+				uploadFile.transferTo(saveFile);
+			
+		    } catch (IllegalStateException | IOException e) {
+				
+				throw new MyException("upload Failed！");
+			}
+			
+			
+		    /*如果上传文件是视频文件则获取视频信息，由于无法获取上传中转文件的存储地址，
+		     * 获取视频信息需要文件绝对路径，所以在文件复制成功后获取视频信息*/
+		    if(baseFile.getFileKind() == BaseFile.FILE_KIND_VIDEO){
+		    	VideoInfoItem videoInfo = VideoInfoUtils.getVideoInfo(saveFile);
+		    	if(videoInfo!=null){
+		    		baseFile.setDuration(videoInfo.getVideoTime());
+		    		baseFile.setVideoLength(videoInfo.getVideoLength());
+		    		baseFile.setWidthRatio(videoInfo.getWidthRatio());
+		    		baseFile.setHeigthRatio(videoInfo.getHeigthRatio());
+		    		
+		    		String videoImg = VideoInfoUtils.processImg(saveFile.getPath(), fileType,videoInfo.getVideoTime(), 
+		    						    pathHelper.getPicPartPath(),zp.getPath(),"600x400");
+    	
+			    	if(videoImg!=null){
+			    		baseFile.setPattern(videoImg);			    	
+			    	}
+			    	
+			    	this.baseFileDao.update(baseFile);
+				}
+		    			    	
+		    }
+		    
+		    
+			return new SaveResult(baseFile.getId(),baseFile.getFileName(),zp.obtainDownLoadHead() + baseFile.getSavePath());
+			
+			
+		}else{
+			throw new MyException("上传文件为空！");
+		}
+	
+	}
+	
+	
+	/**
+	 * 保存文件
+	 * 保存的目录为虚拟目录，产生的压缩文件也保存此目录下
+	 * @param uploadFile
+	 * @param isGetSrcImg 是否获取原图预览路径
+	 * @return
+	 * @throws IOException
+	 */
+	public SaveResult addPublicBaseFile(CommonsMultipartFile uploadFile) {
+		
+		if(uploadFile!=null){
+		
+			ZonePathDTO zp = this.zonePathService.getUseableZone(ZonePath.PUBLIC_FILE);	
+			
+			//路径生成
+			PathHelper pathHelper = new PathHelper(zp.getPath(),uploadFile.getOriginalFilename(),true);
+	   		
+			String realName = pathHelper.getRealFileName();
+			String savePath = pathHelper.getSavePath();
+			String fullPath = pathHelper.getFullPath();   			
+		    String transferPath  = pathHelper.getSwfPath();
+		    String fileType = pathHelper.getFileType();
+		    
+		    PatternHelper ph = new PatternHelper(fileType, uploadFile, zp.getPath(),pathHelper.getPicPartPath());
+			
+		    if(fileType.equals("mp4") || fileType.equals("flv")){//不需要转换，转换地址为源文件地址
+		    	transferPath = savePath;
+		    }
+		    
+		    String srcViewPath = savePath.replaceAll("\\\\", "/");//原图路径'\\'替换'/'
+		    
+		    BaseFile baseFile = new BaseFile(
+		    					uploadFile.getOriginalFilename(), 
+		    					realName, 
+		    					fileType, 
+		    					uploadFile.getContentType(),
+		    					SizeCalculation.getDataSize(uploadFile.getSize()), 
+		    					uploadFile.getSize(),
+		    					FileMd5.fileMD5(uploadFile),
+		    					pathHelper.getFileKind(), 
+		    					ph.getPattern(), 
+		    					StringUtils.isBlank(ph.getBigPattern())? srcViewPath :ph.getBigPattern(), //bigPattern 大图预览路径
+		    					ph.getWidth(),
+		    					ph.getHeigth(),
+		    					ph.getWidthRatio(), 
+		    					ph.getHeigthRatio(), 
+		    					ph.getMarker(),
+		    					ph.getModelNum(),
+		    					savePath,
+		    					transferPath,
+		    					zp.getId(),
+		    					pathHelper.getTurnStatus(),
+		    					getNowUser().getUsername()); 
+		   
+		    this.baseFileDao.save(baseFile);
+		    
+		    File saveFile = new File(fullPath);
+		    
+		    try {
+				uploadFile.transferTo(saveFile);
+			
+		    } catch (IllegalStateException | IOException e) {
+				
+				throw new MyException("upload Failed！");
+			}
+			
+		   
+		    /*如果上传文件是视频文件则获取视频信息，由于无法获取上传中转文件的存储地址，
+		     * 获取视频信息需要文件绝对路径，所以在文件复制成功后获取视频信息*/
+		    if(baseFile.getFileKind() == BaseFile.FILE_KIND_VIDEO){
+		    	VideoInfoItem videoInfo = VideoInfoUtils.getVideoInfo(saveFile);
+		    	if(videoInfo!=null){
+		    		baseFile.setDuration(videoInfo.getVideoTime());
+		    		baseFile.setVideoLength(videoInfo.getVideoLength());
+		    		baseFile.setWidthRatio(videoInfo.getWidthRatio());
+		    		baseFile.setHeigthRatio(videoInfo.getHeigthRatio());
+		    		
+		    		String videoImg = VideoInfoUtils.processImg(saveFile.getPath(), fileType,videoInfo.getVideoTime(), 
+		    						    pathHelper.getPicPartPath(),zp.getPath(),"600x400");
+    	
+			    	if(videoImg!=null){
+			    		baseFile.setPattern(videoImg);			    	
+			    	}
+			    	
+			    	this.baseFileDao.update(baseFile);
+				}
+		    			    	
+		    }
+		    
+			return new SaveResult(baseFile.getId(),baseFile.getFileName(),
+								zp.obtainViewHead() + baseFile.getPattern(),
+								zp.obtainViewHead() + baseFile.getBigPattern(),
+								zp.obtainViewHead() + srcViewPath,
+								baseFile.getFileKind());
+			
+			
+		}else{
+			throw new MyException("上传文件为空！");
+		}
+	
+	}
+	
+	
+	/**
+	 * 获取临时文件保存路径
+	 * @param fileType  文件类型
+	 * @return 文件保存路径
+	 */
+	public String getTempFileWholePath(String fileType){
+		ZonePathDTO zp = this.zonePathService.getUseableZone(ZonePath.TEMP_FILE);	
+		
+		StringBuilder result = new StringBuilder();
+		result.append(zp.getPath());
+		result.append(PathHelper.makeNowDatePath()); //日期
+		
+		
+		File directory = new File(result.toString());
+		if(!directory.exists()){
+			directory.mkdirs();
+		}
+		
+		result.append(UUID.randomUUID().toString()); //uuid
+		result.append(".");
+		result.append(fileType);
+		
+		return result.toString();
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 删除文件
+	 * @param id
+	 */
+	public void deleteBaseFile(Long id){
+		if(id!=null){
+		    BaseFile delItem = this.baseFileDao.getById(id);
+			 
+		    if(delItem == null){
+		    	return;
+		    }
+		    
+			ZonePathDTO zp = this.zonePathService.getZonePathById(delItem.getZonePathId());
+			
+ 			Short fileKind = delItem.getFileKind();
+ 			String pattern = delItem.getPattern();
+ 			String bigattern = delItem.getBigPattern();
+ 			String transferPath = delItem.getTransferPath();
+ 			
+ 			this.baseFileDao.delete(delItem);
+ 			
+ 			//删除源文件
+ 			FileOperation.deleteFile(zp.obtainDownLoadHead()+ delItem.getSavePath());
+ 		   			   			
+			if(fileKind == BaseFile.FILE_KIND_PICTURE || fileKind == BaseFile.FILE_KIND_VIDEO){//删除附带的压缩图片			
+				FileOperation.delteCompressPicture(zp.obtainCompressPath(), pattern, bigattern);
+			 }
+			
+			if(!StringUtils.isBlank(transferPath)){//删除转换的文件
+				FileOperation.deleteFile(zp.obtainDownLoadHead()+ delItem.getSavePath());
+				FileOperation.deleteFile(zp.obtainCompressPath() + transferPath);
+		
+			}
+		
+			
+		}
+		
+		
+	}
+	
+	
+	/**
+	 * 获取文件的物理路径
+	 * @param id
+	 * @return
+	 */
+	public String getDownLoadFilePath(Long id){
+		Assert.notNull(id, "file id must not be null!");
+		
+		return this.baseFileDao.getBaseFilePath(id);
+	}
+	
+	/**
+	 * 获取公共文件的预览路径(与源文件路径相同，如需转换格式则在同一目录下)
+	 * @param id
+	 * @return
+	 */
+	public String getFileViewPath(Long id){
+		Assert.notNull(id, "file id must not be null!");
+		
+		return this.baseFileDao.getFileViewPath(id);
+	}
+	
+	
+	
+	public String updateWaterMarkImg(Long srcId,Long wmId,Integer markType,Float alpha,
+				Integer marginX, Integer marginY){
+		BaseFile srcFile = this.baseFileDao.getById(srcId);
+		BaseFile wmFile = this.baseFileDao.getById(wmId);
+		
+		if(srcFile.getFileKind() == BaseFile.FILE_KIND_PICTURE && wmFile.getFileKind() == BaseFile.FILE_KIND_PICTURE){
+			ZonePath zp = this.zonePathDao.getById(srcFile.getZonePathId());
+			String srcPath = srcFile.getSrcPath();
+			String srcFullPath = zp.obtainDownLoadHead() + srcPath;//原图片路径
+			String datePath = srcPath.substring(0, srcPath.lastIndexOf("\\"));
+			String newFilePath = datePath + File.separator + UUID.randomUUID().toString() + "." + srcFile.getFileType();
+			String newFullPath = zp.getPath() + newFilePath;//新图片路径
+			
+			ZonePath zp2 = this.zonePathDao.getById(wmFile.getZonePathId());
+			String markPath = zp2.obtainDownLoadHead() + wmFile.getSavePath();
+			
+			if(ImageWaterMark.markImageByIcon(markPath, srcFullPath, newFullPath,markType,
+					alpha,marginX,marginY)){//添加水印成功，压缩新图片
+			
+				try {			
+					String newPattern = datePath + File.separator + UUID.randomUUID().toString() + "." + srcFile.getFileType(); 
+					String newBigPattern = datePath + File.separator + UUID.randomUUID().toString() + "." + srcFile.getFileType(); 
+					ImgCompress imgCompress = new ImgCompress(newFullPath);
+					imgCompress.resize2(76, 76, zp.obtainCompressPath() + newPattern);
+					imgCompress.resize2(800, 600, zp.obtainCompressPath() + newBigPattern);
+				
+					String pattern = srcFile.getPattern();
+		 			String bigattern = srcFile.getBigPattern();
+					
+					srcFile.setSavePath(newFilePath);
+					srcFile.setPattern(newPattern.replaceAll("\\\\", "/"));
+					srcFile.setBigPattern(newBigPattern.replaceAll("\\\\", "/"));
+					
+					this.baseFileDao.update(srcFile);
+					
+					FileOperation.delteCompressPicture(zp.obtainCompressPath(), pattern, bigattern);
+					
+					return zp.obtainViewHead() + srcFile.getBigPattern();
+				}catch(MyException me){
+					throw me;
+				}catch (IOException e) {
+					
+					e.printStackTrace();
+				}
+			
+				
+			}
+			
+			return null;
+			
+		}else{
+			throw new MyException("file is not Imgage");
+		}
+	
+		
+	}
+	
+	
+	
+	
+	/**
+	 * 获取下载文件的信息
+	 * @param baseFileId
+	 * @return
+	 */
+	public DownLoadDTO getDownLoadInfoById(Long baseFileId){
+		Assert.notNull(baseFileId, "baseFileId could not be null");
+		
+		BaseFile baseFile = this.baseFileDao.getById(baseFileId);
+		ZonePath zp = this.zonePathDao.getById(baseFile.getZonePathId());
+				
+		return new DownLoadDTO(baseFile.getFileName(), FileOperation.filterPath(zp.getPath()) + baseFile.getSavePath());
+		
+	}
+	
+	
+	
+	private Map<String, Set<SaveResult>> tempCache = new ConcurrentHashMap<String, Set<SaveResult>>();
+	
+	/**
+	 * 保存上传文件
+	 * @param uuid   		唯一标识
+	 * @param uploadFile	上传文件	
+	 */
+	public void saveByCache(String uuid,CommonsMultipartFile uploadFile){
+		Assert.hasText(uuid, "uuid could not be null");
+		Assert.notNull(uploadFile, "uploadFile could not be null");
+		
+		SaveResult as = this.addBaseFile(uploadFile);
+	
+		if(tempCache.containsKey(uuid)){	
+			
+			tempCache.get(uuid).add(as);			
+		}else{
+			Set<SaveResult> objSet = new HashSet<SaveResult>();
+			objSet.add(as);
+			tempCache.put(uuid, objSet);			
+		}							
+	}
+	
+	
+	
+	public Set<SaveResult> getTempCacheVal(String uuid){		
+		return this.tempCache.get(uuid);		
+	}
+	
+	
+	public void removeTempCacheObj(String uuid){
+		this.tempCache.remove(uuid);
+	}
+	
+	
+	
+}

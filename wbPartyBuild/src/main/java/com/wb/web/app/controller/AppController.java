@@ -1,0 +1,213 @@
+package com.wb.web.app.controller;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.wb.core.common.controller.BaseController;
+import com.wb.core.common.dto.AjaxJson;
+import com.wb.core.common.exception.MyException;
+import com.wb.core.utils.HTMLUtil;
+import com.wb.core.utils.PageUtil;
+import com.wb.web.portals.dto.communication.CommunicationDTO;
+import com.wb.web.portals.dto.content.ContentDTO;
+import com.wb.web.portals.dto.content.ContentQueryDTO;
+import com.wb.web.portals.dto.feelingRecord.FeelingRecordDTO;
+import com.wb.web.portals.dto.opinionfeedback.OpinionFeedbackDto;
+import com.wb.web.portals.dto.themeActivity.PhotoActivity;
+import com.wb.web.portals.service.ICommentService;
+import com.wb.web.portals.service.ICommunicationService;
+import com.wb.web.portals.service.IContentService;
+import com.wb.web.portals.service.IFeelingRecordService;
+import com.wb.web.portals.service.IOpinionFeedbackService;
+import com.wb.web.portals.service.IThemeActivityService;
+import com.wb.web.study.dto.examPaper.OnlineTestDTO;
+import com.wb.web.study.dto.studyTask.StudyTaskDTO;
+import com.wb.web.study.service.IExamPaperService;
+import com.wb.web.study.service.IStudyTaskService;
+
+@Controller
+@Scope("prototype")
+@RequestMapping("/appController")
+public class AppController extends BaseController{
+
+	private static final long serialVersionUID = 7411127218063210727L;
+	
+	private static final int CONTENT_NUM_IN_PAGE = 5;  //文章列表每页显示文章数量
+	
+	@Resource
+	private IThemeActivityService themeActivityService;
+	@Resource
+	private ICommunicationService communicationService;
+	@Resource
+	private ICommentService commentService; 	
+	@Resource
+	private IOpinionFeedbackService opinionFeedbackService;
+	@Resource
+	private IContentService contentService;
+	@Resource
+	private IFeelingRecordService feelingRecordService;
+	@Resource
+	private IStudyTaskService studyTaskService;
+	@Resource
+	private IExamPaperService examPaperService;
+	
+	//手机端主页
+	@RequestMapping(value="/index")
+	public String index(HttpServletRequest req){
+		req.setAttribute("index",true);
+		return "app/index.jsp";
+	}	
+	
+	
+	//跳转文章阅读列表
+	@RequestMapping(value="/contentList")
+	public String contentList(HttpServletRequest req){
+		//发送最大页数
+		int pages=(int) Math.ceil(this.contentService.getAPP_CONTENT_SIZE()/CONTENT_NUM_IN_PAGE);
+		req.setAttribute("pages", pages);
+		req.setAttribute("path",req.getContextPath());
+		return "app/content/articlelist.jsp";
+	}	
+	
+	
+	//获取文章列表
+	@RequestMapping(value = "/nextContentList", method = { RequestMethod.POST })
+	@ResponseBody
+	public AjaxJson nextContentList(HttpServletRequest request,Integer currPage) {
+		ContentQueryDTO queryDTO=new ContentQueryDTO();
+		
+		queryDTO.setStartQuery((currPage-1)*CONTENT_NUM_IN_PAGE);
+		queryDTO.setPageSize(CONTENT_NUM_IN_PAGE);
+		
+		List<ContentDTO> dtoList=this.contentService.getAppContent(queryDTO);
+		
+		return new AjaxJson("查询成功", AjaxJson.success,dtoList);
+	}
+	
+	
+	//获取文章内容
+	@RequestMapping(value = "/contentDetil", method = { RequestMethod.GET })
+	public String contentDetil(HttpServletRequest request,Long ctId) {
+		ContentDTO result = this.contentService.getContentDTOById(ctId,false);
+		request.setAttribute("contentItem", result );
+		return "app/content/article.jsp";
+	}
+	
+	
+	
+	
+	//在线测试列表
+	@RequestMapping(value="/testList")
+	public String testList(HttpServletRequest req){		 	
+		int listSize = this.communicationService.countTotalSize();
+		int totalPage;
+		if(listSize>0){
+			totalPage = PageUtil.getTotalPage(listSize,4);
+			req.setAttribute("totalPage", totalPage);
+		}else{
+			req.setAttribute("totalPage", 0);
+		}	
+		req.setAttribute("path",req.getContextPath());
+		return "app/onlineTest/testList.jsp";
+	}
+	
+	
+	//在线测试
+	@RequestMapping(value="/testDetail")
+	public String testDetail(HttpServletRequest req,Long taskId){
+		
+		StudyTaskDTO task = this.studyTaskService.getStudyTaskById(taskId);
+		if(task!=null){
+			OnlineTestDTO testDTO = this.examPaperService.getOnlinePaperById(task.getPaperid());
+			req.setAttribute("result", testDTO);
+			req.setAttribute("taskId", task.getStId());
+		}	
+		req.setAttribute("path",req.getContextPath());
+		return "app/onlineTest/testDetail.jsp";
+
+	}
+	
+
+	//互动交流列表
+	@RequestMapping(value="/topicList")
+	public String topicList(HttpServletRequest req){		 	
+		int listSize = this.communicationService.countTotalSize();
+		int totalPage;
+		if(listSize>0){
+			totalPage = PageUtil.getTotalPage(listSize,2);
+			req.setAttribute("totalPage", totalPage);
+		}else{
+			req.setAttribute("totalPage", 0);
+		}	
+		req.setAttribute("path",req.getContextPath());
+		return "app/communication/topicList.jsp";
+	}
+	
+	//互动交流具体页面
+	@RequestMapping(value="/topicDetail")
+	public String topicDetail(HttpServletRequest req,Long comId){
+		
+		CommunicationDTO result  = this.communicationService.getCurent(comId);
+		result.setContent(HTMLUtil.removeTag(result.getContent()));		
+		if(result!=null){			
+			Integer totalSize = this.commentService.countTotalSize(result.getId());
+		    req.setAttribute("totalPage",PageUtil.getTotalPage(totalSize,4));
+		}	
+        req.setAttribute("result",result);		
+		req.setAttribute("path",req.getContextPath());
+		return "app/communication/topicDetail.jsp";
+
+	}
+		
+	//跳转到添加反馈意见页面
+	@RequestMapping(value="skipAddOpinion")
+	public String skipAddOpinion(HttpServletRequest request){
+		return "app/goldenIdeas/advise.jsp";
+	}
+
+	//添加反馈意见
+	@RequestMapping(value="/addOpinion",method={RequestMethod.POST})
+	@ResponseBody
+	public AjaxJson addOpinion(HttpServletRequest request,OpinionFeedbackDto dto) {
+		this.opinionFeedbackService.saveOpinionFeedback(dto,getNowIPAddress(request));
+		return new AjaxJson(this.ADD_SUCCESS_MESSAGE, AjaxJson.success);
+	}
+	
+	
+	//摄影活动
+	@RequestMapping(value="/photography")
+	public String photography(HttpServletRequest req){		
+	   PhotoActivity result = this.themeActivityService.getNowPhotoActivity();		       
+	   if(result!=null){	   
+		   req.setAttribute("activityId", result.getActivity().getId());
+	   }else{
+		   throw new MyException("暂无摄影活动");			   
+	   } 
+	   req.setAttribute("path",req.getContextPath());
+	   return "app/photography/addManuscript.jsp";
+	}
+			
+
+	//跳转到添加心得体会页面
+	@RequestMapping(value="skipAddExperience")
+	public String skipAddExperience(HttpServletRequest request){
+		return "app/experience/experience.jsp";
+	}
+	
+
+	//添加心得体会
+	@RequestMapping(value="/addExperience",method={RequestMethod.POST})
+	@ResponseBody
+	public AjaxJson addExperience(HttpServletRequest request,FeelingRecordDTO dto) {
+		this.feelingRecordService.addFeelingRecord(dto);
+		return new AjaxJson(this.ADD_SUCCESS_MESSAGE, AjaxJson.success);
+	}	
+}

@@ -1,0 +1,331 @@
+package com.wb.web.system.controller;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+
+import net.sf.json.JSONObject;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.wb.core.common.bean.Page;
+import com.wb.core.common.controller.BaseController;
+import com.wb.core.common.dto.AjaxJson;
+import com.wb.core.common.exception.MyException;
+import com.wb.core.spring.security.gobal.MyRequestParam;
+import com.wb.core.utils.http.HttpUtils;
+import com.wb.web.system.dto.EduDegree.EduDegreeDTO;
+import com.wb.web.system.dto.baseDict.BaseDictDTO;
+import com.wb.web.system.dto.baseDict.BaseDictQueryDTO;
+import com.wb.web.system.dto.role.RoleDTO;
+import com.wb.web.system.dto.role.RoleQueryDTO;
+import com.wb.web.system.dto.user.UserDTO;
+import com.wb.web.system.dto.user.UserQueryDTO;
+import com.wb.web.system.entity.BaseDict;
+import com.wb.web.system.service.IBaseDictService;
+import com.wb.web.system.service.IEduDegreeService;
+import com.wb.web.system.service.IRoleService;
+import com.wb.web.system.service.IUserService;
+
+@Controller
+@Scope("prototype")
+@RequestMapping("/userController")
+public class UserController extends BaseController{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5177791084663689444L;
+	@Resource
+	private IUserService userService;
+	@Resource
+	private IRoleService roleService;
+	@Resource
+	private IBaseDictService baseDictService;
+	@Resource
+	private IEduDegreeService eduDegreeService;
+	
+	/**
+	 * 跳转查看分页查询
+	 * @param request
+	 * @param sf 
+	 * @return
+	 */
+	@RequestMapping(params=MyRequestParam.viewPage)
+	public String viewUserPage(HttpServletRequest request){
+	
+		this.wrapMenuTitle(request);
+				
+	
+		return "system/user/userList.jsp";
+	}
+	
+	
+	/**
+	 * 分页查询
+	 * @param request
+	 * @param queryDTO
+	 * @return
+	 */
+	@RequestMapping("pageList")
+	@ResponseBody
+	public Map<String, Object> loadUserByPage(HttpServletRequest request,UserQueryDTO queryDTO){
+		
+		this.wrapTableQueryParams(request, queryDTO);
+		Page<UserDTO> pageResult = this.userService.searchUserByPage(queryDTO);
+		 
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		jsonMap.put("aaData", pageResult.getList());
+		jsonMap.put("iTotalDisplayRecords", pageResult.getRecTotal());//总记录数
+		jsonMap.put("iTotalRecords", pageResult.getPageSize());		  //当前查询数量	
+		jsonMap.put("sEcho", queryDTO.getsEcho());
+		
+		
+		return jsonMap;
+	}
+	
+	
+	/**
+	 * 跳转到添加用户
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(params=MyRequestParam.add,method={RequestMethod.GET})
+	public String skipAddUser(HttpServletRequest request){
+		
+		List<RoleDTO> roleList = this.roleService.searchListByCondition(new RoleQueryDTO());
+		request.setAttribute("roleList", roleList);
+		
+		BaseDictQueryDTO bdqd = new BaseDictQueryDTO();
+	    bdqd.setDictType(BaseDict.DEP_JOb_PERSON_TYPE);
+	    List<BaseDictDTO> flagDicts = this.baseDictService.searchListByCondition(bdqd);
+		   	    
+	    request.setAttribute("flagDict", flagDicts);
+	    
+		//读取受教育等级类别
+	    List<EduDegreeDTO> eduDtoList=this.eduDegreeService.getAll();
+	    request.setAttribute("eduDict",eduDtoList);
+		
+				
+		return "system/user/addUser.jsp";
+	}
+	
+	
+	
+	/**
+	 * 添加用户
+	 * @param dto
+	 * @param pwd
+	 * @param pwd2
+	 * @param roleCodes
+	 * @return
+	 */
+	@RequestMapping(value="/addUser",method={RequestMethod.POST})
+	@ResponseBody
+	public AjaxJson addUser(UserDTO dto,String pwd,String pwd2,String[] roleIds){
+	
+		this.userService.addUser(dto, pwd, pwd2,roleIds);
+		
+		
+		return new AjaxJson(this.ADD_SUCCESS_MESSAGE, AjaxJson.success);
+	}
+	
+	
+	
+	/**
+	 * 查询用户详细信息
+	 * @param request
+	 * @param uid
+	 * @param oper
+	 * @return
+	 */
+	@RequestMapping(params=MyRequestParam.detail,method={RequestMethod.GET})
+	public ModelAndView loadUserDetail(HttpServletRequest request,@RequestParam(value="uid",required=true)String uid,
+				String oper){
+		//读取数据字典在册类别
+		BaseDictQueryDTO bdqd = new BaseDictQueryDTO();
+	    bdqd.setDictType(BaseDict.DEP_JOb_PERSON_TYPE);
+	    List<BaseDictDTO> flagDicts = this.baseDictService.searchListByCondition(bdqd);
+		   	    
+	    request.setAttribute("flagDict", flagDicts);
+	    
+		//读取受教育等级类别
+	    List<EduDegreeDTO> eduDtoList=this.eduDegreeService.getAll();
+	    request.setAttribute("eduDict",eduDtoList);
+		
+		UserDTO result = this.userService.getUserById(uid);
+		request.setAttribute("userItem", result);
+		
+		if("edit".equals(oper)){	
+			RoleQueryDTO rqd = new RoleQueryDTO();
+			List<RoleDTO> roleList = this.roleService.searchListByCondition(rqd);
+			rqd.setUserId(uid);
+			List<RoleDTO> ownRoleList = this.roleService.searchListByCondition(rqd);
+			
+			StringBuilder ownRoles = new StringBuilder();
+			for (RoleDTO roleDTO : ownRoleList) {
+				ownRoles.append(roleDTO.getRoleText() + ",");
+			}
+			
+			if(ownRoles.length()>0){
+				ownRoles.deleteCharAt(ownRoles.length()-1);
+			}
+			
+			for (int i = 0; i < roleList.size(); i++) {
+				for (int j = 0; j < ownRoleList.size(); j++) {
+					if(roleList.get(i).getId().equals(ownRoleList.get(j).getId())){
+						roleList.get(i).setCheck(true);
+						break;
+					}
+				}
+			}
+			
+			request.setAttribute("ownRoles", ownRoles.toString());	
+			request.setAttribute("roleList", roleList);			
+			
+			return new ModelAndView("system/user/editUser.jsp");
+		
+		}else if("changePwd".equals(oper)){
+			return new ModelAndView("system/user/change-password.jsp");
+		
+		}else{
+			throw new MyException("request error!");
+		}
+		
+	}
+	
+	/**
+	 * 修改用户信息
+	 * @param dto
+	 * @param roleCodes
+	 * @return
+	 */
+	@RequestMapping(value="/editUser",method={RequestMethod.POST})
+	@ResponseBody
+	public AjaxJson updateUser(UserDTO dto,String[] roleIds){
+
+		this.userService.updateUser(dto,roleIds);
+		
+		
+		return new AjaxJson(this.EDIT_SUCCESS_MESSAGE, AjaxJson.success);
+	}
+	
+	
+	
+	 
+	/**
+	 * 管理员修改密码
+	 * @param uid
+	 * @param pwd
+	 * @param pwd2
+	 * @return
+	 */
+	@RequestMapping(value="/changePassword",method={RequestMethod.POST})
+	@ResponseBody
+	public AjaxJson changePassword(@RequestParam(value="uid",required=true)String uid,String pwd,String pwd2){
+		
+		this.userService.changePassWordByAdmin(uid, pwd, pwd2);
+		
+		
+		return new AjaxJson("修改密码成功！", AjaxJson.success);
+	}
+	
+	
+	
+	/*@RequestMapping(value="/importUser")
+	@ResponseBody
+	public AjaxJson importUsers(@RequestParam(required=true)CommonsMultipartFile file){
+		 		
+		this.userService.importByExcel(file);		
+		
+		return new AjaxJson(AjaxJson.success, AjaxJson.success);		
+	}*/
+
+   
+	
+	/*@RequestMapping(value="/importUser")
+	@ResponseBody
+	public AjaxJson importUserFromCJService(){
+		 Map<String, String> params = new HashMap<String, String>();
+		 params.put("access_token", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpZCI6Ik1ldGVyaWFsQnJhbmRzIiwiZHQiOjYzNTkzODM3NDU0NjI1MDAwMH0.5edEUzJRW1Ou3F5Jtf5upVk4BFOe9Fp0nAPp70XhWyPjjVR85Ua1bJTDgOH5yUkbQrF2weo4cnrju2O5lpPytA");
+
+		
+		try {
+			byte[] result = HttpUtils.sendGETRequest("http://183.62.232.185:8012/dgcj_dms/Handlers/GetUsers.aspx", params, "utf-8");
+			
+			this.userService.updateImportUser(new String(result,"utf-8"));
+			
+			
+			return new AjaxJson(this.ADD_SUCCESS_MESSAGE, AjaxJson.success);
+			
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		
+		return new AjaxJson("error", AjaxJson.error);
+		
+	}*/
+	
+   
+
+//	@RequestMapping(value="/testReport")
+//    public ModelAndView testReport(){
+//    	    	    	  
+//	    // 报表数据源  
+//	    JRDataSource jrDataSource = new JRBeanCollectionDataSource(new TestUser().getList());  
+//		Map<String, Object> model = new HashMap<String, Object>(); 
+//		model.put("format", "html"); //转换格式
+//		model.put("myDateSource", jrDataSource);
+//	          
+//	    return new ModelAndView("report1.jrxml",model); 
+//    	  
+//      }
+//      
+    
+	
+   
+	
+	
+	/**
+	 * 查询人员数据情况用于首页简介数据表格统计
+	 * @param queryDTO
+	 * @return
+	 */
+	@RequestMapping("/getTotalData")
+	@ResponseBody
+	public AjaxJson getDepartTree(HttpServletRequest request){
+		Map<String,Object> resultList=this.userService.getStatistics();
+		return new AjaxJson("查询成功", AjaxJson.success,resultList);
+	}
+    
+    
+	/**
+	 * 删除用户
+	 * @param request
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping("/deleteUser")
+	@ResponseBody
+	public AjaxJson deleteUser(HttpServletRequest request,String[] ids){
+		this.userService.deleteUserByChangeVal(ids);
+		
+		return new AjaxJson(this.DEL_SUCCESS_MESSAGE, AjaxJson.success);
+	}
+    
+}

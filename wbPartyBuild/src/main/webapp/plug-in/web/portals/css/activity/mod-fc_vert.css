@@ -1,0 +1,15 @@
+.sidemenu-header{padding-left: 24px;}
+
+.fc_dpm{ color: #333333; padding: 14px 0px 50px 12px;margin-top: 12px; font-family: "Microsoft YaHei","SimSun";text-align: left;position:relative;top: 0px;left: 0px;}
+.fc_dpm-level{}
+.fc_dpm-nodewrapper{  display: inline-block;}
+.fc_dpm-node{ width: 248px; position: relative; line-height: 38px; box-shadow: 4px 4px 4px #D0D0D0; font-size:18px; background-color: #ebeef2; color: #262626;border-radius:2px; margin:12px 0px;cursor: pointer;}
+.fc_dpm-icon_node{display: inline-block;width: 14px;height: 14px;background: url('../../image/zhedie_c.png') no-repeat; margin:0px 12px;vertical-align: middle; }
+.fc_dpm-branch1{ width: 26px; height: 0px; border-top:1px dashed #ebeef2;position: absolute;width: 100%;height: 50%; }
+.active .fc_dpm-node{color: #B30100;}
+.fc_dpm .active .fc_dpm-icon_node{background: url('../../image/zhedie_o.png') no-repeat;}
+.fc_dpm-node-info{display:none;font-size:14px; background-color:#ffffff; color: #434343; list-style-type: decimal; padding-left:60px;line-height: 1.4; font-family: "SimHei",} 
+.fc_dpm-node-info li{ padding:5px 2px 5px 2px;} 
+.fc_dpm-node-info em{color: blue;}
+.fc_dpm-node-info strong{color: red; }
+.fc_doshed{width: 0px;height: 100%;border-left: 1px dashed #719BB0;position: absolute;top: 0px;left: 30px;}

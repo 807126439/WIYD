@@ -1,0 +1,69 @@
+html{font-size: 12px; font-family: "Microsoft YaHei" ! important;height: 100%;}
+body{width:100%; float:left; margin:0 auto;}
+i{overflow: hidden;}
+.hide{display: none !important;}
+.loc{font-size: 12px;font-weight: normal;}
+.loc li,.loc ol,.loc span{float: left;}
+.loc .noactive:after{ content: ">"; padding:0px 4px;}
+
+.paging{ float: right;}
+.paging-inline{ vertical-align: middle; text-align: center;}
+.paging-block{ display: inline-block; padding: 0px 10px; height: 18px; background-color: #E6E6E6;}
+.paging-ol{ display: inline-block; height: 18px;}
+.paging-ol li{ float: left; height: 16px; padding:0px 2px;}
+.paging-ol .paging-block{ padding: 0px 6px;}
+.paging-ol .active .paging-block{ background-color: #F32D27; color: #FFFFFF;}
+.paging-page{ height: 16px; line-height: 16px; border: 1px solid #DBDBDB; width:38px;}
+
+
+.sidemenu{ float: left; width: 248px;}
+.sidemenu .sidemenu-header{ height: 50px; padding: 59px 0px 59px 42px; background: url('../../image/modbg.png') no-repeat;}
+.sidemenu .sidemenu-uppercase,.sidemenu-headertitle{ float: left; height: 50px; color: #FFFFFF;}
+.sidemenu .sidemenu-headertitle{ max-width: 170px; text-align: left;}
+.sidemenu .sidemenu-uppercase{ font-size: 44px; line-height: 50px; margin-right: 6px;}
+.sm-ht_zh{ font-size:24px; line-height: 34px;}
+.sm-ht_en{ font-size: 12px; line-height: 12px; overflow: visible;}
+.sidemenu .sidemenu-list{ background:#E6E6E6;}
+.sidemenu .sidemenu-menu{position: relative;}
+.sidemenu .sidemenu-menu>.sidemenu-list{display: none;background: #d3d3d3;}
+.sidemenu .sidemenu-menu.active>.sidemenu-list{display:block;}
+.sidemenu .sidemenu-menu .sidemenu-menu .sidemenu-tt{text-indent: 60px;}
+.sidemenu .sidemenu-menu .sidemenu-menu.active>.sidemenu-tt{background-color: #A1A1A1;color: #b40100;}
+.sidemenu .sidemenu-tt{ display: inline-block; width: 100%; color: #5D5D5D; font-size: 16px; line-height: 40px; text-indent: 40px;cursor: pointer;white-space: nowrap;overflow: hidden;}
+.sidemenu .sidemenu-tt:hover{ background-color: #ccc;}
+.sidemenu .sidemenu-tt a{ display: block;}
+.active>.sidemenu-tt {background-color: #909090;color: #fff;}
+.active>.sidemenu-tt a{color: #fff;}
+.icon_fold{position: absolute;left:18px;display: inline-block;width: 14px;height: 40px;margin-right:10px;overflow: hidden;vertical-align: middle;background: url('../../image/icon_fold.png') no-repeat -16px 12px;}
+.sidemenu .sidemenu-menu .sidemenu-menu .icon_fold{left:36px;background: url('../../image/icon_fold2.png') no-repeat 0px center;}
+.active>.sidemenu-tt .icon_fold{background: url('../../image/icon_fold.png') no-repeat 0px 12px;}
+.sidemenu .sidemenu-menu .sidemenu-menu.active>.sidemenu-tt .icon_fold{left:36px;background: url('../../image/icon_fold2.png') no-repeat -16px center;}
+.sidemenu .sidemenu-menu .sidemenu-item{font-size: 14px;}
+.sidemenu .sidemenu-menu .sidemenu-item a:before{content: "·";font-weight: bold;margin-right: 4px;font-family: "SimSun";}
+.sidemenu .sidemenu-menu .sidemenu-menu .sidemenu-item a:before{content: "·";font-weight: bold;margin-right:0px;font-family: "SimSun";}
+.sidemenu .sidemenu-menu .sidemenu-item.active{background-color:#AFAFAF;border-top:1px solid #ddd;border-bottom:1px solid #ddd;}
+
+.sidemenu .sidemenu-item:hover{ background-color: #CACACA;}
+.sidemenu .sidemenu-item.active{ background:#9C9C9C;}
+.sidemenu .sidemenu-item a{ display: inline-block; width: 100%; color: #5D5D5D; font-size: 16px; line-height: 40px; text-indent: 40px;}
+.sidemenu .sidemenu-menu .sidemenu-menu .sidemenu-item a{text-indent:54px;}
+.sidemenu .sidemenu-item.active a{ color: #FFFFFF;}
+.sidemenu .sidemenu-item.active a:after{ content: " "; display: inline-block; float: right; margin-right: 10px; height: 40px; width: 18px; background: url('../../image/icon_arrowhead.png') no-repeat; background-position: 0px 12px;}
+
+
+.mod{ padding: 0px 12px 12px 12px; margin:0px 16px 0px 258px; background-color: #FFFFFF;}
+.mod-title{ border-bottom:2px solid #B30100; padding:6px 6px; font-size: 18px; color: #010101; font-weight: bold;}
+.mod-loc{ float: right; line-height: 18px; font-weight: normal;}
+.icon_mod{ margin-right: 6px;}
+.icon_mod:before{ content: " "; display: inline-block; height: 12px; width: 12px; background: url('../../image/icon_mod.png') no-repeat;}
+.mod-content{ font-family: "SimSun","Microsoft YaHei";}
+
+#announcementlist{ padding: 4px;}
+.announcement{ position: relative; line-height: 40px;}
+.announcement+.announcement{ border-top: 1px dotted #CCCCCC;}
+.announcementcontent{ display: block; height: 40px; overflow: hidden; font-size: 14px; font-family:"Microsoft YaHei","SimSun";vertical-align: middle; text-overflow:ellipsis;white-space:nowrap; overflow:hidden; }
+.hasdate .announcementcontent{ margin-right: 74px;}
+.announcementcontent:hover{ color: #9B0B13;}
+.announcementaside{ float: right; background-color: #FFFFFF; font-size: 12px; text-align: right; width: 74px;}
+.announcementaside .publicdate{ color:#5F5C5C;}
+.announcementcontent:before{ content: "·"; }

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd    
+                        http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-3.2.xsd 
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-3.2.xsd    
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">  
+    
+
+    
+    <context:property-placeholder location="classpath:dbConfig.properties" ignore-unresolvable="true" />                        
+    <!-- 自动扫描dao和service包(自动注入) -->
+	<context:component-scan base-package="com.wb.web.system.dao.*" />
+	<context:component-scan base-package="com.wb.web.system.service.*" />
+	
+	<context:component-scan base-package="com.wb.web.base.dao.*" />
+	<context:component-scan base-package="com.wb.web.base.service.*" />
+	
+	<context:component-scan base-package="com.wb.web.portals.dao.*" />
+	<context:component-scan base-package="com.wb.web.portals.service.*" />
+	
+	<context:component-scan base-package="com.wb.web.study.dao.*" />
+	<context:component-scan base-package="com.wb.web.study.service.*" />
+	
+	<context:component-scan base-package="com.wb.web.party.dao.*" />
+	<context:component-scan base-package="com.wb.web.party.service.*" />
+	
+	<context:component-scan base-package="com.wb.web.workflow.dao.*" />
+	<context:component-scan base-package="com.wb.web.workflow.service.*" />
+	
+	<context:component-scan base-package="com.wb.core.common.dao.*" />
+	
+
+    
+    <!-- 数据源 -->
+	<bean id="dataSource" destroy-method="close" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!--连接数据库的驱动类 -->
+		<property name="driverClass" value="${driverClass}" />
+		<!--连接数据库的url -->
+		<property name="jdbcUrl" value="${jdbcUrl}" />
+		<!--连接数据库的用户名 -->
+		<property name="user" value="${db_user}" />
+		<!--连接数据库的密码 -->
+		<property name="password" value="${db_pwd}" />
+		<!-- 获得连接的超时时间,如果超过这个时间,会抛出异常，如设为0则无限期等待,单位毫秒 -->
+		<property name="checkoutTimeout" value="${checkoutTimeout}" />
+		<!-- 指定连接数据库连接池的初始化连接数 -->
+		<property name="initialPoolSize" value="${initialPoolSize}" />
+		<!-- 指定连接数据库连接池的最小连接数 -->
+		<property name="minPoolSize" value="${minPoolSize}" />
+		<!-- 指定连接数据库连接池的最大连接数 -->
+		<property name="maxPoolSize" value="${maxPoolSize}" />
+		<!-- 指定连接数据库连接池的连接的最大空闲时间 -->
+		<property name="maxIdleTime" value="${maxIdleTime}" />
+		<!-- 当连接池里面的连接用完时，C3P0一下获取的新连接数 -->
+		<property name="acquireIncrement" value="${acquireIncrement}" />
+		<!-- 指定时间后闲置的多余连接进行淘汰 -->
+		<property name="maxIdleTimeExcessConnections" value="${maxIdleTimeExcessConnections}" />
+	
+	</bean>
+    
+    
+    <!-- sessionFactory的配置 -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" >
+			<list>
+                <value>com.wb.web.system.entity</value>
+                <value>com.wb.web.portals.entity</value>
+                <value>com.wb.web.base.entity</value>
+                <value>com.wb.web.study.entity</value>
+                <value>com.wb.web.party.entity</value>
+                <value>com.wb.web.workflow.entity</value>
+            </list>
+		
+		</property>
+		<!-- 将hibernate.cfg.xml这个配置与spring关联 -->
+		<property name="configLocation" value="classpath:hibernate.cfg.xml"></property>
+		
+	</bean>
+    
+   <!-- 配置事务管理器，在*ServiceImpl里写@Transactional就可以启用事务管理 -->
+	<bean name="myTxManager"	class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="myTxManager" />
+
+	<aop:aspectj-autoproxy />
+	<!--
+	<aop:config>
+		<aop:pointcut id="productServiceMethods"
+			expression="execution(* com.wb.web.*.service.*.*(..))" />				    	  		
+		<aop:advisor advice-ref="txAdvice"  pointcut-ref="productServiceMethods" />
+			
+	</aop:config>-->
+	
+  
+ 	
+	 <tx:advice id="txAdvice" transaction-manager="myTxManager">
+		<tx:attributes>
+	 	    <tx:method name="save*" propagation="REQUIRED"  />
+	 	    <tx:method name="add*" propagation="REQUIRED"  />
+	 	    <tx:method name="update*" propagation="REQUIRED"  />
+	 	    <tx:method name="edit*" propagation="REQUIRED"  />
+	 	    <tx:method name="change*" propagation="REQUIRED"  />
+	 	    <tx:method name="delete*" propagation="REQUIRED"  />
+	 	    <tx:method name="init*" propagation="REQUIRED"  />
+			<tx:method name="search*" propagation="REQUIRED"  read-only="true"/>
+			<tx:method name="get*" propagation="REQUIRED"  read-only="true"/>
+			<tx:method name="select*" propagation="REQUIRED"  read-only="true"/>
+			<tx:method name="load*" propagation="REQUIRED"  read-only="true"/>
+			<tx:method name="query*" propagation="REQUIRED"  read-only="true"/>
+			<tx:method name="find*" propagation="REQUIRED"  read-only="true"/>
+		</tx:attributes>
+	</tx:advice> 
+    
+    
+    
+	<bean id="mapper" class="org.dozer.spring.DozerBeanMapperFactoryBean">
+		<property name="mappingFiles">
+			<list>
+				<value>classpath*:com/wb/web/*/dto/*/dozer_*.xml</value>
+			</list>
+		</property>
+	</bean>
+   
+  
+</beans>  

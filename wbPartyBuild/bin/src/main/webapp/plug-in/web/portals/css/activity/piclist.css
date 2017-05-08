@@ -1,0 +1,28 @@
+.contentwrapper{
+  color: #000000;
+  font-size: 16px;
+  padding: 16px 0px 50px 0px;  
+  font-family: "Microsoft YaHei","SimSun";
+}
+
+.contentwrapper p{
+	font-size:16px;
+	line-height:40px;
+	color:#424242;
+	text-align: left;
+}
+.box,.box1{ height:230px; float:left;}
+.box{margin-right:10px;}
+.pic-img{width:230px; height:180px; border:1px solid #e5e5e5; background:#CCC;}
+.pic-text{ width:200px; height:30px; line-height:30px;text-align:center; font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; margin-left:15px; margin-right:15px; margin-top:10px;}
+
+.topItem{ margin-bottom:15px; float: left;}
+
+.page {float: right; padding: 5px 0 5px 0;}
+.page li {float: left; margin:0 0 0 5px; display: inline; color: #777;width: auto; line-height: 20px; border: solid 1px #DDD; background: #FAFAFA;}
+.page li a {color: #555;padding: 1px 7px;float: left;}
+.page li:hover a {color: #FFF;}
+.page .current {background: #B40100; border: solid 1px #B40100; color: #FFF; font-size: 14px;padding: 1px 7px;}
+.page .standby:hover {background: #B40100;cursor: pointer; border-color: #B40100; color: #FFF;}
+.page .omission {border: 0; background: transparent;padding: 1px 7px;}
+.page .invalid {color: #CCC; cursor:default;padding: 1px 7px;}

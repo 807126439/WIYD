@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spr.web.system.dao.IUserInfoDao">
+
+  <resultMap id="BaseResultMap" type="com.spr.web.system.entity.UserInfo">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="depart_name" jdbcType="VARCHAR" property="departName" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+    <result column="score_id" jdbcType="VARCHAR" property="scoreId" />
+    <result column="is_ignore_rank" jdbcType="TINYINT" property="isIgnoreRank" />
+    <result column="view_time" jdbcType="INTEGER" property="viewTime" />
+    <result column="be_viewed_time" jdbcType="INTEGER" property="beViewedTime" />
+    <result column="down_time" jdbcType="INTEGER" property="downTime" />
+    <result column="be_downed_time" jdbcType="INTEGER" property="beDownedTime" />
+    <result column="recommend_time" jdbcType="INTEGER" property="recommendTime" />
+    <result column="be_recommended_time" jdbcType="INTEGER" property="beRecommendedTime" />
+    <result column="photo_id" jdbcType="BIGINT" property="photoId" />
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, user_id, depart_name, score, score_id, is_ignore_rank, view_time, be_viewed_time, down_time, 
+    be_downed_time, recommend_time, be_recommended_time, photo_id, update_by, gmt_create, 
+    gmt_modified
+  </sql>
+
+  <select id="getDetailByCondition" parameterType="map" resultType="com.spr.web.system.dto.user.UserInfoDTO">
+    select 
+      id AS id,
+      user_id AS userId,
+      depart_name AS departName,
+      score AS score,
+      score_id AS scoreId,
+      is_ignore_rank AS isIgnoreRank,
+      view_time AS viewTime,
+      be_viewed_time AS beViewedTime,
+      down_time AS downTime,
+      be_downed_time AS beDownedTime,
+      recommend_time AS recommendTime,
+      be_recommended_time AS beRecommendedTime,
+      photo_id AS photoId,
+      update_by AS updateBy,
+      gmt_create AS gmtCreate,
+      gmt_modified AS gmtModified
+    from c_user_info
+    <include refid="select_condition" />
+  </select>
+
+ <select id="getByUserId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from c_user_info
+    where user_id = #{userId,jdbcType=VARCHAR}
+  </select>
+
+
+  <select id="getById" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from c_user_info
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+    <select id="countByQueryMap" parameterType="map" resultType="com.spr.web.system.dto.user.WeiUserDTO">
+	    select 
+	   	 b.id AS id,
+	   	 b.user_name AS userName,
+	   	 b.chinese_name AS chineseName,
+	   	 a.photo_id AS photoId,
+	   	 a.score AS score,
+	   	 c.grade_name AS gradeName,
+	   	 (
+				SELECT
+					COUNT(score)
+				FROM
+					c_user_info
+				WHERE
+					score > a.score
+					AND is_ignore_rank = 'false'
+			) + 1 AS rank
+	    from c_user_info a
+	    LEFT JOIN c_user b ON a.user_id=b.id
+	    LEFT JOIN grade_score c ON a.score_id = c.id
+   		<choose>
+   			<when test="userId!=null">
+   				<where>
+   					b.id = #{userId,jdbcType=VARCHAR}
+   				</where>
+   			</when>
+   			<otherwise>
+   				<where>
+   					a.is_ignore_rank = 'false'
+   				</where>
+   				ORDER BY score DESC
+   				LIMIT 10
+   			</otherwise>
+   		</choose>
+	  </select>
+
+  <select id="countByCondition" parameterType="map" resultType="long">
+    select count(*) from c_user_info
+    <include refid="select_condition" />
+  </select>
+
+  <sql id="select_condition">
+  	<where>
+  		<if test="userId!=null">
+  			AND user_id = #{userId}
+  		</if>
+  		<if test="isIgnoreRank!=null">
+  			AND is_ignore_rank = 'false'
+  		</if>
+  	</where>
+  </sql>
+
+  <select id="selectListByCondition" parameterType="map" resultType="com.spr.web.system.dto.user.UserInfoDTO">
+    select 
+      id AS id,
+      user_id AS userId,
+      depart_name AS departName,
+      score AS score,
+      score_id AS scoreId,
+      is_ignore_rank AS isIgnoreRank,
+      view_time AS viewTime,
+      be_viewed_time AS beViewedTime,
+      down_time AS downTime,
+      be_downed_time AS beDownedTime,
+      recommend_time AS recommendTime,
+      be_recommended_time AS beRecommendedTime,
+      photo_id AS photoId,
+      update_by AS updateBy,
+      gmt_create AS gmtCreate,
+      gmt_modified AS gmtModified
+    from c_user_info
+    <include refid="select_condition" />
+    <if test="sidx!=null and sord!=null">
+      ORDER BY ${sidx} ${sord}
+    </if>
+    <if test="startQuery!=null and pageSize!=null">
+      LIMIT #{startQuery},#{pageSize}  
+    </if>
+  </select>
+
+  <select id="getDetailById" parameterType="java.lang.String" resultType="com.spr.web.system.dto.user.UserInfoDTO">
+    select 
+      id AS id,
+      user_id AS userId,
+      depart_name AS departName,
+      score AS score,
+      score_id AS scoreId,
+      is_ignore_rank AS isIgnoreRank,
+      view_time AS viewTime,
+      be_viewed_time AS beViewedTime,
+      down_time AS downTime,
+      be_downed_time AS beDownedTime,
+      recommend_time AS recommendTime,
+      be_recommended_time AS beRecommendedTime,
+      photo_id AS photoId,
+      update_by AS updateBy,
+      gmt_create AS gmtCreate,
+      gmt_modified AS gmtModified
+    from c_user_info
+
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.String">
+    delete from c_user_info
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="com.spr.web.system.entity.UserInfo">
+    <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+      SELECT REPLACE(UUID(),'-','')
+    </selectKey>
+    insert into c_user_info (id, user_id, depart_name, 
+      score, score_id, is_ignore_rank, view_time, 
+      be_viewed_time, down_time, be_downed_time, 
+      recommend_time, be_recommended_time, photo_id, 
+      update_by, gmt_create, gmt_modified
+      )
+    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{departName,jdbcType=VARCHAR}, 
+      #{score,jdbcType=INTEGER}, #{scoreId,jdbcType=VARCHAR}, #{isIgnoreRank,jdbcType=TINYINT}, #{viewTime,jdbcType=INTEGER}, 
+      #{beViewedTime,jdbcType=INTEGER}, #{downTime,jdbcType=INTEGER}, #{beDownedTime,jdbcType=INTEGER}, 
+      #{recommendTime,jdbcType=INTEGER}, #{beRecommendedTime,jdbcType=INTEGER}, #{photoId,jdbcType=BIGINT}, 
+      #{updateBy,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.spr.web.system.entity.UserInfo">
+    <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+      SELECT REPLACE(UUID(),'-','')
+    </selectKey>
+    insert into c_user_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      id,
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="departName != null">
+        depart_name,
+      </if>
+      <if test="score != null">
+        score,
+      </if>
+      <if test="scoreId != null">
+        score_id,
+      </if>
+      <if test="isIgnoreRank != null">
+        is_ignore_rank,
+      </if>
+      <if test="viewTime != null">
+        view_time,
+      </if>
+      <if test="beViewedTime != null">
+        be_viewed_time,
+      </if>
+      <if test="downTime != null">
+        down_time,
+      </if>
+      <if test="beDownedTime != null">
+        be_downed_time,
+      </if>
+      <if test="recommendTime != null">
+        recommend_time,
+      </if>
+      <if test="beRecommendedTime != null">
+        be_recommended_time,
+      </if>
+      <if test="photoId != null">
+        photo_id,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id,jdbcType=VARCHAR},
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="departName != null">
+        #{departName,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null">
+        #{score,jdbcType=INTEGER},
+      </if>
+      <if test="scoreId != null">
+        #{scoreId,jdbcType=VARCHAR},
+      </if>
+      <if test="isIgnoreRank != null">
+        #{isIgnoreRank,jdbcType=TINYINT},
+      </if>
+      <if test="viewTime != null">
+        #{viewTime,jdbcType=INTEGER},
+      </if>
+      <if test="beViewedTime != null">
+        #{beViewedTime,jdbcType=INTEGER},
+      </if>
+      <if test="downTime != null">
+        #{downTime,jdbcType=INTEGER},
+      </if>
+      <if test="beDownedTime != null">
+        #{beDownedTime,jdbcType=INTEGER},
+      </if>
+      <if test="recommendTime != null">
+        #{recommendTime,jdbcType=INTEGER},
+      </if>
+      <if test="beRecommendedTime != null">
+        #{beRecommendedTime,jdbcType=INTEGER},
+      </if>
+      <if test="photoId != null">
+        #{photoId,jdbcType=BIGINT},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateSelective" parameterType="com.spr.web.system.entity.UserInfo">
+    update c_user_info
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="departName != null">
+        depart_name = #{departName,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null">
+        score = #{score,jdbcType=INTEGER},
+      </if>
+      <if test="scoreId != null">
+        score_id = #{scoreId,jdbcType=VARCHAR},
+      </if>
+      <if test="isIgnoreRank != null">
+        is_ignore_rank = #{isIgnoreRank,jdbcType=TINYINT},
+      </if>
+      <if test="viewTime != null">
+        view_time = #{viewTime,jdbcType=INTEGER},
+      </if>
+      <if test="beViewedTime != null">
+        be_viewed_time = #{beViewedTime,jdbcType=INTEGER},
+      </if>
+      <if test="downTime != null">
+        down_time = #{downTime,jdbcType=INTEGER},
+      </if>
+      <if test="beDownedTime != null">
+        be_downed_time = #{beDownedTime,jdbcType=INTEGER},
+      </if>
+      <if test="recommendTime != null">
+        recommend_time = #{recommendTime,jdbcType=INTEGER},
+      </if>
+      <if test="beRecommendedTime != null">
+        be_recommended_time = #{beRecommendedTime,jdbcType=INTEGER},
+      </if>
+      <if test="photoId != null">
+        photo_id = #{photoId,jdbcType=BIGINT},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  <update id="update" parameterType="com.spr.web.system.entity.UserInfo">
+    update c_user_info
+    set user_id = #{userId,jdbcType=VARCHAR},
+      depart_name = #{departName,jdbcType=VARCHAR},
+      score = #{score,jdbcType=INTEGER},
+      score_id = #{scoreId,jdbcType=VARCHAR},
+      is_ignore_rank = #{isIgnoreRank,jdbcType=TINYINT},
+      view_time = #{viewTime,jdbcType=INTEGER},
+      be_viewed_time = #{beViewedTime,jdbcType=INTEGER},
+      down_time = #{downTime,jdbcType=INTEGER},
+      be_downed_time = #{beDownedTime,jdbcType=INTEGER},
+      recommend_time = #{recommendTime,jdbcType=INTEGER},
+      be_recommended_time = #{beRecommendedTime,jdbcType=INTEGER},
+      photo_id = #{photoId,jdbcType=BIGINT},
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

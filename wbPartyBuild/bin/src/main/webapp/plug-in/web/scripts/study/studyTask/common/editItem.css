@@ -1,0 +1,51 @@
+/* ==========editItem.jsp========== */
+div.divclass {
+	display: inline-block;
+	width: 160px;
+	height: 19px;
+	padding: 5px 0px;
+	border-radius: 4px;
+	border: 1px solid #C53B36;
+	margin: 5px;
+	float: left;
+	background-color: #C53B36;
+	color: #fff;
+	text-align: center;
+	cursor: pointer;
+}
+
+div#shijuan div.divclass {
+	width: 332px;
+}
+
+div.divclass input {
+	background-color: transparent;
+	border: 0px solid #000;
+	color: #fff;
+	text-align: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+div#shijuan div.divclass input {
+	width: 318px;
+}
+
+div.divclass span {
+	float: right;
+}
+
+div.divclass span i {
+	color: transparent;
+}
+
+div.divclass:hover span i {
+	color: #fff;
+}
+
+/* 
+.Hui-iconfont-close2:before {
+	content: "\e706";
+}
+ */

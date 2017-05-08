@@ -1,0 +1,151 @@
+package com.wb.web.portals.dto.content;
+
+import java.util.Date;
+import java.util.List;
+
+import com.wb.web.portals.dto.banChunk.BanChunkDTO;
+
+/**
+ * 内页文章详细内容展示
+ * @author wb_java_zjr
+ *
+ */
+public class InnerContentDetailDTO {
+
+	private Long id;				//文章id
+	private String author;			//作者
+	private String source;			//来源
+	private String title;			//文章标题
+	private Date createTime;		//发布时间
+	private String content;			//文章内容
+	private String viewPath;
+	private String seeOrgId;		//可查看的部门ID号
+	
+	private Short typeId;			//直属栏目类型id	
+	private Long columnId;			//直属栏目id
+	private String columnTitle;		//直属栏目名称
+	private Long parColumnId;		//直属栏目父栏目id
+	private String parColumnTitle;	//直属栏目父栏目名称
+		
+	private List<ContentItem> imgList; //图片集合
+	private ContentItem pre;    //上一篇文章
+	private ContentItem next;	//下一篇文章
+	private List<BanChunkDTO> banChunkList;//图片所属板块集合
+	private Long activityId;	//所属活动
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getAuthor() {
+		return author;
+	}
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public Date getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getViewPath() {
+		return viewPath;
+	}
+	public void setViewPath(String viewPath) {
+		this.viewPath = viewPath;
+	}
+	public Short getTypeId() {
+		return typeId;
+	}
+	public void setTypeId(Short typeId) {
+		this.typeId = typeId;
+	}
+	public Long getColumnId() {
+		return columnId;
+	}
+	public void setColumnId(Long columnId) {
+		this.columnId = columnId;
+	}
+	public String getColumnTitle() {
+		return columnTitle;
+	}
+	public void setColumnTitle(String columnTitle) {
+		this.columnTitle = columnTitle;
+	}
+	public Long getParColumnId() {
+		return parColumnId;
+	}
+	public void setParColumnId(Long parColumnId) {
+		this.parColumnId = parColumnId;
+	}
+	public String getParColumnTitle() {
+		return parColumnTitle;
+	}
+	public void setParColumnTitle(String parColumnTitle) {
+		this.parColumnTitle = parColumnTitle;
+	}
+	
+	public ContentItem getPre() {
+		return pre;
+	}
+	public void setPre(ContentItem pre) {
+		this.pre = pre;
+	}
+	public ContentItem getNext() {
+		return next;
+	}
+	public void setNext(ContentItem next) {
+		this.next = next;
+	}
+	public List<ContentItem> getImgList() {
+		return imgList;
+	}
+	public void setImgList(List<ContentItem> imgList) {
+		this.imgList = imgList;
+	}
+	public List<BanChunkDTO> getBanChunkList() {
+		return banChunkList;
+	}
+	public void setBanChunkList(List<BanChunkDTO> banChunkList) {
+		this.banChunkList = banChunkList;
+	}
+	public Long getActivityId() {
+		return activityId;
+	}
+	public void setActivityId(Long activityId) {
+		this.activityId = activityId;
+	}
+	public String getSeeOrgId() {
+		return seeOrgId;
+	}
+	public void setSeeOrgId(String seeOrgId) {
+		this.seeOrgId = seeOrgId;
+	}
+	
+	
+	
+	
+}

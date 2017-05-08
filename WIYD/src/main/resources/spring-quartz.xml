@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+  
+
+	
+	<!-- 监控定时任务 -->
+	<bean id="monitorCacheTimer"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+        <property name="targetObject" ref="baseFileService" />   
+        <property name="targetMethod" value="monitorCache" />  
+        <property name="concurrent" value="false" />  
+    </bean>  
+	
+	
+	  
+   <bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="monitorCacheTimer" />
+		<property name="startDelay" value="6000" />   <!-- 程序延迟执行时间，单位毫秒 -->
+		<property name="repeatInterval" value="3600000" /><!-- 隔多久执行一次，单位毫秒 -->
+		<!-- <property name="repeatCount" value="2"></property> 去掉默认循环-->
+
+	</bean>
+	
+
+	
+
+	<!-- 定时任务调度器   SchedulerFactoryBean -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list>
+				<ref bean="monitorCacheTimer" />
+			</list>
+		</property>
+
+		<property name="triggers">
+			<list>
+				<ref bean="simpleTrigger" />
+			</list>
+		</property>
+	</bean>
+    
+
+    
+    
+    
+    
+    
+    
+</beans>

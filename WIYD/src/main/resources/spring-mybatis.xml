@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+                        http://www.springframework.org/schema/beans/spring-beans-4.1.xsd  
+                        http://www.springframework.org/schema/context  
+                        http://www.springframework.org/schema/context/spring-context-4.1.xsd  
+                        http://www.springframework.org/schema/mvc  
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+                        http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-4.1.xsd ">
+
+	 <!-- 自动扫描dao和service包(自动注入) -->
+
+	<context:component-scan base-package="com.spr.web.system.dao.*" />
+	<context:component-scan base-package="com.spr.web.system.service.*" />
+	
+	<context:component-scan base-package="com.spr.web.file.dao.*" />
+	<context:component-scan base-package="com.spr.web.file.service.*" />
+	
+	<context:component-scan base-package="com.spr.web.grade.dao.*" />
+	<context:component-scan base-package="com.spr.web.grade.service.*" />
+	
+	<context:component-scan base-package="com.spr.web.document.dao.*" />
+	<context:component-scan base-package="com.spr.web.document.service.*" />
+	
+	<context:component-scan base-package="com.spr.web.record.dao.*" />
+	<context:component-scan base-package="com.spr.web.record.service.*" />
+	
+	<context:component-scan base-package="com.spr.core.common.dao.*" />
+
+	
+	<context:component-scan base-package="com.spr.core.timer.*" />
+	
+	
+	<context:property-placeholder location="classpath:dbConfig.properties" ignore-unresolvable="true" />                        
+   
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	
+ 	<aop:aspectj-autoproxy  />
+	<!-- 日志切面bean 
+	<bean id="LoggerAspect" class="com.spr.core.spring.aop.LoggerAspect"/>-->
+
+   
+    <!-- 数据源 -->
+	<bean id="dataSource" destroy-method="close" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!--连接数据库的驱动类 -->
+		<property name="driverClass" value="${driverClass}" />
+		<!--连接数据库的url -->
+		<property name="jdbcUrl" value="${jdbcUrl}" />
+		<!--连接数据库的用户名 -->
+		<property name="user" value="${db_user}" />
+		<!--连接数据库的密码 -->
+		<property name="password" value="${db_pwd}" />
+		<!-- 获得连接的超时时间,如果超过这个时间,会抛出异常，如设为0则无限期等待,单位毫秒 -->
+		<property name="checkoutTimeout" value="${checkoutTimeout}" />
+		<!-- 指定连接数据库连接池的初始化连接数 -->
+		<property name="initialPoolSize" value="${initialPoolSize}" />
+		<!-- 指定连接数据库连接池的最小连接数 -->
+		<property name="minPoolSize" value="${minPoolSize}" />
+		<!-- 指定连接数据库连接池的最大连接数 -->
+		<property name="maxPoolSize" value="${maxPoolSize}" />
+		<!-- 指定连接数据库连接池的连接的最大空闲时间 -->
+		<property name="maxIdleTime" value="${maxIdleTime}" />
+		<!-- 当连接池里面的连接用完时，C3P0一下获取的新连接数 -->
+		<property name="acquireIncrement" value="${acquireIncrement}" />
+		<!-- 指定时间后闲置的多余连接进行淘汰 -->
+		<property name="maxIdleTimeExcessConnections" value="${maxIdleTimeExcessConnections}" />
+	
+	</bean>
+    
+
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+		<!-- 自动扫描mapping.xml文件 -->
+		<property name="mapperLocations" >
+		   <list>
+		     <value>classpath:com/spr/web/system/dao/*.xml</value>
+		     <value>classpath:com/spr/web/file/dao/*.xml</value>
+		     <value>classpath:com/spr/web/grade/dao/*.xml</value>
+		     <value>classpath:com/spr/web/document/dao/*.xml</value>
+		     <value>classpath:com/spr/web/record/dao/*.xml</value>		     
+		   </list>
+		
+		
+		</property>
+	</bean>
+
+	<!-- DAO接口所在包名，Spring会自动查找其下的类-->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.spr.web.*.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean> 
+
+	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+
+	
+	
+	<bean id="mapper" class="org.dozer.spring.DozerBeanMapperFactoryBean">
+		<property name="mappingFiles">
+			<list>
+				<value>classpath*:com/wb/web/*/dto/*/dozer_*.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	
+
+</beans>

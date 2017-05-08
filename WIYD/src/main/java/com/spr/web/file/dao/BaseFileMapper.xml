@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spr.web.file.dao.IBaseFileDao" >
+   <resultMap id="BaseResultMap" type="com.spr.web.file.entity.BaseFile" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="file_name" property="fileName" jdbcType="VARCHAR" />
+    <result column="pattern" property="pattern" jdbcType="VARCHAR" />
+    <result column="big_pattern" property="bigPattern" jdbcType="VARCHAR" />
+    <result column="content_type" property="contentType" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="file_kind" property="fileKind" jdbcType="SMALLINT" />
+    <result column="file_size" property="fileSize" jdbcType="VARCHAR" />
+    <result column="file_type" property="fileType" jdbcType="VARCHAR" />
+    <result column="length" property="length" jdbcType="BIGINT" />
+    <result column="md5_code" property="md5Code" jdbcType="VARCHAR" />
+    <result column="real_name" property="realName" jdbcType="VARCHAR" />
+    <result column="save_path" property="savePath" jdbcType="VARCHAR" />
+    <result column="transfer_path" property="transferPath" jdbcType="VARCHAR" />
+    <result column="zone_path_id" property="zonePathId" jdbcType="BIGINT" />
+    <result column="turn_status" property="turnStatus" jdbcType="SMALLINT" />
+    <result column="main_id" property="mainId" jdbcType="BIGINT" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, file_name, pattern, big_pattern, content_type, create_by, file_kind, 
+    file_size, file_type, length, md5_code, real_name, save_path, transfer_path, zone_path_id, 
+    turn_status, main_id, status, gmt_create, gmt_modified
+  </sql>
+  
+  <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from m_base_file
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  
+  <select id="getBaseFileByMainId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from m_base_file
+    where main_id = #{mainId,jdbcType=BIGINT}
+  </select>
+  
+  
+  <select id="getFileWholePath" parameterType="java.lang.Long" resultType="map">
+  	SELECT
+		z.path, f.save_path,f.file_name,f.file_type
+	FROM
+		m_base_file f
+	INNER JOIN m_zone_path z ON f.zone_path_id = z.id
+	WHERE
+		f.id =#{id}
+  
+  </select>
+  
+    <select id="getBigPatternViewPath" parameterType="java.lang.Long" resultType="map">
+  	SELECT
+		z.view_path,f.big_pattern
+	FROM
+		m_base_file f
+	INNER JOIN m_zone_path z ON f.zone_path_id = z.id
+	WHERE
+		f.id =#{id}
+  
+  </select>
+  
+   <select id="getFileViewPath" parameterType="java.lang.Long" resultType="map">
+  	SELECT
+		z.virtual_path,f.transfer_path
+	FROM
+		m_base_file f
+	INNER JOIN m_zone_path z ON f.zone_path_id = z.id
+	WHERE
+		f.id =#{id}
+  
+  </select>
+  
+  <select id="getByMainId" parameterType="java.lang.Long" resultType="com.spr.web.file.dto.baseFile.PreviewImageDTO">
+  	SELECT 
+		f.pattern AS pattern ,f.zone_path_id AS zonePathId
+	FROM 
+		m_base_file f 
+	WHERE
+		f.main_id =#{baseFileId} 
+	ORDER BY f.id ASC
+  </select>
+  
+  
+  <!-- 写操作 -->
+  <delete id="deleteById" parameterType="java.lang.Long" >
+    delete from m_base_file
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+   <delete id="deleteByMainId" parameterType="java.lang.Long" >
+    delete from m_base_file
+    where main_id = #{mainId,jdbcType=BIGINT}
+  </delete>
+  
+  <insert id="insert" parameterType="com.spr.web.file.entity.BaseFile" useGeneratedKeys="true" keyProperty="id">
+     insert into m_base_file
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="fileName != null" >
+        file_name,
+      </if>
+      <if test="pattern != null" >
+        pattern,
+      </if>
+      <if test="bigPattern != null" >
+        big_pattern,
+      </if>
+      <if test="contentType != null" >
+        content_type,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>     
+      <if test="fileKind != null" >
+        file_kind,
+      </if>
+      <if test="fileSize != null" >
+        file_size,
+      </if>
+      <if test="fileType != null" >
+        file_type,
+      </if>
+      <if test="length != null" >
+        length,
+      </if>
+      <if test="md5Code != null" >
+        md5_code,
+      </if>
+      <if test="realName != null" >
+        real_name,
+      </if>
+      <if test="savePath != null" >
+        save_path,
+      </if>
+      <if test="transferPath != null" >
+        transfer_path,
+      </if>
+      <if test="zonePathId != null" >
+        zone_path_id,
+      </if>
+      <if test="turnStatus != null" >
+        turn_status,
+      </if>    
+      <if test="mainId != null" >
+        main_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="fileName != null" >
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="pattern != null" >
+        #{pattern,jdbcType=VARCHAR},
+      </if>
+      <if test="bigPattern != null" >
+        #{bigPattern,jdbcType=VARCHAR},
+      </if>
+      <if test="contentType != null" >
+        #{contentType,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>     
+      <if test="fileKind != null" >
+        #{fileKind,jdbcType=SMALLINT},
+      </if>
+      <if test="fileSize != null" >
+        #{fileSize,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null" >
+        #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="length != null" >
+        #{length,jdbcType=BIGINT},
+      </if>
+      <if test="md5Code != null" >
+        #{md5Code,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="savePath != null" >
+        #{savePath,jdbcType=VARCHAR},
+      </if>
+      <if test="transferPath != null" >
+        #{transferPath,jdbcType=VARCHAR},
+      </if>
+      <if test="zonePathId != null" >
+        #{zonePathId,jdbcType=BIGINT},
+      </if>
+      <if test="turnStatus != null" >
+        #{turnStatus,jdbcType=SMALLINT},
+      </if>  
+      <if test="mainId != null" >
+        #{mainId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+       <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  
+   <update id="updateSelective" parameterType="com.spr.web.file.entity.BaseFile" >
+    update m_base_file
+    <set >
+      <if test="fileName != null" >
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="pattern != null" >
+        pattern = #{pattern,jdbcType=VARCHAR},
+      </if>
+      <if test="bigPattern != null" >
+        big_pattern = #{bigPattern,jdbcType=VARCHAR},
+      </if>
+      <if test="contentType != null" >
+        content_type = #{contentType,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="fileKind != null" >
+        file_kind = #{fileKind,jdbcType=SMALLINT},
+      </if>
+      <if test="fileSize != null" >
+        file_size = #{fileSize,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null" >
+        file_type = #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="length != null" >
+        length = #{length,jdbcType=BIGINT},
+      </if>
+      <if test="md5Code != null" >
+        md5_code = #{md5Code,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="savePath != null" >
+        save_path = #{savePath,jdbcType=VARCHAR},
+      </if>
+      <if test="transferPath != null" >
+        transfer_path = #{transferPath,jdbcType=VARCHAR},
+      </if>  
+      <if test="zonePathId != null" >
+        zone_path_id = #{zonePathId,jdbcType=BIGINT},
+      </if>
+      <if test="turnStatus != null" >
+        turn_status = #{turnStatus,jdbcType=SMALLINT},
+      </if>
+      <if test="mainId != null" >
+        main_id = #{mainId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+       <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="update" parameterType="com.spr.web.file.entity.BaseFile" >
+    update m_base_file
+    set file_name = #{fileName,jdbcType=VARCHAR},
+      pattern = #{pattern,jdbcType=VARCHAR},
+      big_pattern = #{bigPattern,jdbcType=VARCHAR},
+      content_type = #{contentType,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      file_kind = #{fileKind,jdbcType=SMALLINT},
+      file_size = #{fileSize,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      length = #{length,jdbcType=BIGINT},
+      md5_code = #{md5Code,jdbcType=VARCHAR},
+      real_name = #{realName,jdbcType=VARCHAR},
+      save_path = #{savePath,jdbcType=VARCHAR},
+      transfer_path = #{transferPath,jdbcType=VARCHAR},     
+      zone_path_id = #{zonePathId,jdbcType=BIGINT},
+      turn_status = #{turnStatus,jdbcType=SMALLINT},
+      main_id = #{mainId,jdbcType=BIGINT},
+      status = #{status,jdbcType=SMALLINT},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  
+  <update id="updateStatusByIds">
+  	UPDATE m_base_file SET status=#{status} WHERE id IN
+  	<foreach collection="ids" item="id" open="(" close=")" separator=",">
+  	#{id}
+  	</foreach>
+  </update>
+  
+  
+  
+</mapper>

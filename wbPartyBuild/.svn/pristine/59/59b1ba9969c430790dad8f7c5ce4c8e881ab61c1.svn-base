@@ -1,0 +1,33 @@
+body{background-color: #ffffff;}
+.wr_communication {font-family:  "Microsoft YaHei","SimSun"}
+.wr_communication .title{font-weight: bold;font-size: 22px;color: #000000;line-height: 50px;border-bottom: 4px solid #b40100;}
+.communicationmod{border: 1px solid #e5e5e5;}
+.communicationmod-title{background: url('../../image/titlebg.jpg') repeat-x;font-size:18px;color: #b40100;height: 44px;line-height:44px;padding:0px 10px;background: url('../../image/titlebg.jpg') repeat-x;border-bottom: 1px solid #e5e5e5;font-weight: bold;}
+.communicationmod-title-r{float: right;font-size:12px;color: #000000;}
+.communicationmod-title-r a:hover{text-decoration: underline;}
+#announcementlist{padding: 12px;}
+.announcement{ padding-bottom: 14px; font-size: 14px;}
+.announcement .icon_mod:before{display: inline-block;height: 40px;background-position: 0px 14px;}
+.announcement .announcementcontent{margin-left: 20px;}
+.announcement .announcementcontent:before{content: "";}
+.announcement .announcementaside{margin-right:10px;font-size: 14px;color: #818181;}
+.announcement .originator{margin-left:20px;font-size: 12px;color: #818181;line-height: 1;}
+.announcement-l{float: left;}
+.announcement-belongs{font-weight: bold;margin: 0px 8px 0px 2px;}
+.announcement-belongs:hover{text-decoration: underline;}
+
+.part1,.part2{margin-top: 12px;}
+.part1 .issue{width:658px; float: left;position: relative;}
+.part1 .issue-pic{height:218px;padding:60px;background: url('../../image/issue-pic.png') no-repeat;}
+.part1 .issue-tt{font-size: 18px;color: #343333;line-height: 30px;font-weight: bold;}
+.part1 .issue-title{font-size: 30px;color: #b40100;line-height: 44px;}
+.part1 .issue-info{position: absolute;left: 220px;top: 220px;font-size: 14px;}
+.part1 .issue-footer{padding: 12px;}
+.part1 .issue-remaintime,.part1 .issue-participants{margin-right:12px;font-size: 14px;}
+.part1 .issue-footer-r{float: right;display: inline-block;}
+.part1 .btn_enterissue,.part1 .btn_comment{display:inline-block;padding:10px 20px;font-size:18px;border-radius:8px;}
+.part1 .btn_enterissue{background-color:#72a9c4; color: #FFFFFF;}
+.part1 .btn_comment{background-color:#e9e9e9;color: #b40100; }
+.part1 .communicationmod{margin-left:670px;}
+.part1 .announcementaside{width: 70px;}
+

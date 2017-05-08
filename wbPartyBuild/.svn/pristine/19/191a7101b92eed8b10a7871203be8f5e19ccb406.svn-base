@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd    
+                        http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-3.2.xsd 
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-3.2.xsd    
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">  
+    
+
+    <!-- 加载controller的时候,不加载service,因为此时事务并未生效,若此时加载了service,那么事务无法对service进行拦截 -->
+	<context:component-scan base-package="com.wb.web.*">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Service" />
+	</context:component-scan>
+
+   
+    <!--避免IE执行AJAX时，返回JSON出现下载文件 -->  
+    <bean id="mappingJacksonHttpMessageConverter"  
+        class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">  
+        <property name="supportedMediaTypes">  
+            <list>  
+                <value>text/html;charset=UTF-8</value> 
+                <!--  <value>application/json; charset=utf-8</value>  -->
+            </list>  
+        </property>  
+        <property name="objectMapper">
+        	 <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+        	 	 <property name="dateFormat">  
+                      <bean class="java.text.SimpleDateFormat">  
+                          <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />  
+                      </bean>  
+                  </property>                 
+                
+        	 </bean>
+        </property>
+    </bean>  
+   
+    <!-- 启动SpringMVC的注解功能，完成请求和注解POJO的映射 -->  
+    <bean  
+        class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">  
+        <property name="messageConverters">  
+            <list>  
+                <ref bean="mappingJacksonHttpMessageConverter" /> <!-- JSON转换器 -->  
+            </list>  
+        </property>  
+       <!-- <property name="webBindingInitializer">
+        	<bean class="com.wb.core.interceptors.MyWebBinding" />
+        </property> --> 
+    </bean>  
+    
+    <!-- 全局异常处理器 -->
+    <bean id="exceptionHandler" class="com.wb.core.common.exception.GlobalExceptionResolver">  
+	</bean>  
+    
+    <!-- 多视图匹配器，viewResolver类的定义必须写在内部中，如果写在外面springmvc会自动加载所有的viewResolver而使多视图匹配器无效 -->
+    <bean id="viewResolver" class="com.wb.core.resolver.view.MultiViewResolver">
+        <property name="defaultViewResolver" ref="beanNameViewResolver"/>
+        <property name="viewResolverMap">
+            <map>
+                <entry >
+                    <key>
+                    	<value>.jsp</value>
+                    </key>
+                    <bean  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                    	 <property name="prefix" value="/page/" />  
+				         <property name="viewClass">  
+				            <value>org.springframework.web.servlet.view.JstlView</value>  
+				         </property>  
+                    
+                    </bean>                  
+                </entry>
+                <entry >
+                    <key>
+                    	<value>.ftl</value>
+                    </key>
+                    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+                    	    <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView"/>  
+					        <property name="contentType" value="text/html; charset=utf-8"/>  
+					        <property name="requestContextAttribute" value="request"></property><!-- 是把Spring的RequestContext对象暴露为变量request 利用${request.contextPath}来获取应用程序的contextPath -->
+					        <property name="cache" value="true" />
+					                          
+                    </bean>                   
+                </entry>
+                 <entry >
+                    <key>
+                    	<value>.jrxml</value>
+                    </key>
+                    <bean id="jasperReportResolver" class="org.springframework.web.servlet.view.jasperreports.JasperReportsViewResolver">  	
+                    	<property name="prefix" value="/jasper/" ></property>			   
+					    <property name="viewClass" value="org.springframework.web.servlet.view.jasperreports.JasperReportsMultiFormatView"></property>  
+						<property name="cache" value="false" />
+						<property name="jdbcDataSource" ref="dataSource"></property>    <!-- 数据库源 -->
+						<property name="reportDataKey" value="myDateSource"></property> <!-- 自定义数据源,存放在model的key为myDateSource的数据 -->
+						
+				        <property name="exporterParameters">
+				            <map>
+				                <!-- Force bei allen UTF-8 -->
+				                <entry key="net.sf.jasperreports.engine.JRExporterParameter.CHARACTER_ENCODING">
+				                    <value>UTF-8</value>
+				                </entry>
+				                
+				                <entry key="net.sf.jasperreports.engine.export.JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS">
+					              <value type="java.lang.Boolean">true</value>					
+					            </entry>
+					            					
+					            <entry key="net.sf.jasperreports.engine.export.JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND">					
+					              <value type="java.lang.Boolean">false</value>					
+					            </entry>
+				            </map>
+				        </property>
+					
+					</bean>                   
+                </entry>
+                     
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+    
+      
+    
+   
+      
+    <!-- 配置freeMarker的模板路径 -->  
+    <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">  
+        <property name="templateLoaderPath">  
+            <value>/ftl/</value>  
+        </property>  
+        <property name="freemarkerVariables">  
+            <map>  
+                <entry key="xml_escape" value-ref="fmXmlEscape" />  
+            </map>  
+        </property>  
+        <property name="defaultEncoding">  
+            <value>utf-8</value>  
+        </property>  
+        <property name="freemarkerSettings">  
+            <props>  
+                <prop key="object_wrapper">freemarker.ext.beans.BeansWrapper</prop>
+                <prop key="template_update_delay">1</prop>  
+                <prop key="number_format">#</prop><!--避免 当数据超过3位的时候,freemarker会自动用逗号截取 -->
+            </props>  
+        </property>  
+    </bean>  
+       
+    <bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape"/>  
+    
+    
+    
+      
+    <!-- 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 -->  
+    <bean id="multipartResolver"    
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">    
+        <!-- 默认编码 -->  
+        <property name="defaultEncoding" value="utf-8" />    
+        <!-- 文件大小最大值 -->  
+        <property name="maxUploadSize" value="10485760000" /> <!-- 10GB -->
+        <!-- 内存中的最大值 -->  
+        <property name="maxInMemorySize" value="40960" />  
+
+    </bean>   
+  
+</beans>  

@@ -1,0 +1,778 @@
+package com.wb.web.portals.dao.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.BooleanType;
+import org.hibernate.type.DateType;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
+import org.hibernate.type.ShortType;
+import org.hibernate.type.StringType;
+import org.hibernate.type.TextType;
+import org.springframework.stereotype.Repository;
+
+import com.wb.core.common.bean.Page;
+import com.wb.core.common.dao.impl.BaseDaoImpl;
+import com.wb.core.common.utils.Assert;
+import com.wb.core.utils.ReflectUtil;
+import com.wb.web.portals.dao.IContentDao;
+import com.wb.web.portals.dto.content.ContentDTO;
+import com.wb.web.portals.dto.content.ContentItem;
+import com.wb.web.portals.dto.content.ContentQueryDTO;
+import com.wb.web.portals.dto.content.HistoryContentDTO;
+import com.wb.web.portals.dto.content.InnerContentDetailDTO;
+import com.wb.web.portals.dto.content.InnerShowContentDTO;
+import com.wb.web.portals.dto.content.ShowContentDTO;
+import com.wb.web.portals.entity.ColumnMu;
+import com.wb.web.portals.entity.Content;
+
+@Repository("contentDao")
+public class ContentDaoImpl extends BaseDaoImpl<Long, Content> implements IContentDao{
+
+	
+	/**
+	 * 后台按条件查询对象集合到DTO中
+	 * @param queryDTO
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Page<ContentDTO> searchEntityByPage(ContentQueryDTO queryDTO){
+		StringBuilder countBuilder = new StringBuilder("SELECT COUNT(*) as num FROM cy_content WHERE 1=1 ");
+		StringBuilder listBuilder = new StringBuilder("SELECT id as ctId,sort_num as sortNum,title_prefix as titlePrefix,title,pattern,source,author,")
+											  .append("create_time as createTime,activity_id as activityId,app_status as appStatus FROM cy_content WHERE 1=1 ");
+		
+		if(queryDTO.getColumId()!=null){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND columnmu_id=:colId ");
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND parent_id IS NULL ");
+	
+		}else if(queryDTO.getParId()!=null){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND (parent_id=:parId OR id=:parId) ");
+		}
+		
+		if(queryDTO.getDays()!=null&&queryDTO.getDays()!=0){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND create_time >=:dateString ");
+		}
+		
+		
+		if(!StringUtils.isBlank(queryDTO.getTitle())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND title LIKE:title ");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getSource())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND source=:source ");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getAuthor())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND author=:author ");
+		}
+		
+		this.bulidQueryStrItem(countBuilder, listBuilder, "AND status=:status ");
+		
+		if(queryDTO.getAppContent()==true){
+			listBuilder.append("ORDER BY app_status DESC,create_time DESC ");
+		}else if(!StringUtils.isBlank(queryDTO.getSidx()) && !StringUtils.isBlank(queryDTO.getSord())){
+			
+			String filedName = ReflectUtil.getFiledValueByAnnotation(getInheritClass(),queryDTO.getSidx());	
+			listBuilder.append(generateOrderSql(queryDTO.getSord(),filedName,null));
+		}else{
+			listBuilder.append("ORDER BY sort_num ASC ");
+		}
+		
+		
+		Query queryCount = this.getSession().createSQLQuery(countBuilder.toString()).addScalar("num", LongType.INSTANCE);
+		Query queryList = this.getSession().createSQLQuery(listBuilder.toString())
+								.addScalar("ctId", LongType.INSTANCE).addScalar("sortNum", IntegerType.INSTANCE)
+								.addScalar("titlePrefix", StringType.INSTANCE)
+								.addScalar("title", StringType.INSTANCE).addScalar("pattern", StringType.INSTANCE)
+								.addScalar("source", StringType.INSTANCE).addScalar("author", StringType.INSTANCE)
+								.addScalar("createTime", DateType.INSTANCE)
+								.addScalar("activityId", LongType.INSTANCE)
+								.addScalar("appStatus", ShortType.INSTANCE)
+								.setResultTransformer(Transformers.aliasToBean(ContentDTO.class));
+		
+		if(queryDTO.getColumId()!=null){
+			this.setQueryParamsVal(queryCount, queryList, "colId", queryDTO.getColumId());
+			
+		}else if(queryDTO.getParId()!=null){
+			this.setQueryParamsVal(queryCount, queryList, "parId", queryDTO.getParId());
+		}	
+		
+		if(queryDTO.getDays()!=null&&queryDTO.getDays()!=0){
+			Date searchDate=new Date();
+			Calendar calendar=Calendar.getInstance();
+			calendar.add(Calendar.DAY_OF_MONTH, -(queryDTO.getDays()));
+			searchDate=calendar.getTime();
+			String dateString = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(searchDate);
+			this.setQueryParamsVal(queryCount, queryList, "searchDate", dateString);
+		}
+		
+		this.setQueryParamsVal(queryCount, queryList, "status", Content.NORMAL_STATUS);
+		
+		if(!StringUtils.isBlank(queryDTO.getTitle())){
+			this.setQueryParamsVal(queryCount, queryList, "title","%"+ queryDTO.getTitle()+"%");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getSource())){
+			this.setQueryParamsVal(queryCount, queryList, "source", queryDTO.getSource());
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getAuthor())){
+			this.setQueryParamsVal(queryCount, queryList, "author", queryDTO.getAuthor());
+		}
+		
+		
+		queryList.setFirstResult(queryDTO.getStartQuery());
+		queryList.setMaxResults(queryDTO.getPageSize());
+		
+		Page<ContentDTO> contentPage= new Page<ContentDTO>(queryDTO.getCurrentPage(), queryDTO.getPageSize(), queryList.list(), (Long) queryCount.uniqueResult());
+		//为结果排序，此序号是显示结果序号，非数据库序号
+		int start=queryDTO.getStartQuery();
+		for (ContentDTO dto : contentPage.getList()) {
+			dto.setSort((long) ++start);
+		}
+		
+		
+		return contentPage;
+	}
+	
+	
+	
+	/**
+	 * 根据id查询对象到DTO中
+	 * @param id
+	 * @return
+	 */
+	public ContentDTO getContentDTOById(Long id){
+		StringBuilder sb = new StringBuilder("SELECT t.id as ctId,t.sort_num as sortNum,t.title_prefix as titlePrefix,t.title as title,")
+									 .append("t.pattern as pattern,t.source as source,t.author as author,")
+								     .append("t.content as content,t.index_flag as indexFlag,t.columnmu_id as columnId,t.base_file_id as baseFileId,")								   
+									 .append("t.create_time as createTime,c.title as columnName,c.type_id as typeId,t.activity_id as activityId,t.see_org_id as seeOrgId,t.app_status as appStatus ")
+								     .append("FROM cy_content t INNER JOIN cy_columnmu c ON c.id=t.columnmu_id WHERE t.id=? ");
+									
+									
+		Query query = this.getSession().createSQLQuery(sb.toString())
+							.addScalar("ctId", LongType.INSTANCE).addScalar("sortNum", IntegerType.INSTANCE)
+							.addScalar("titlePrefix", StringType.INSTANCE).addScalar("title", StringType.INSTANCE)
+							.addScalar("pattern", StringType.INSTANCE).addScalar("source", StringType.INSTANCE)
+							.addScalar("author", StringType.INSTANCE)
+							.addScalar("content", TextType.INSTANCE).addScalar("indexFlag", ShortType.INSTANCE)
+							.addScalar("createTime", DateType.INSTANCE).addScalar("columnId", LongType.INSTANCE)
+							.addScalar("baseFileId", LongType.INSTANCE)
+							.addScalar("columnName", StringType.INSTANCE).addScalar("typeId", ShortType.INSTANCE)
+							.addScalar("activityId", LongType.INSTANCE).addScalar("seeOrgId", StringType.INSTANCE)
+							.addScalar("appStatus", ShortType.INSTANCE)
+							.setResultTransformer(Transformers.aliasToBean(ContentDTO.class));
+		query.setParameter(0, id);
+		
+		return (ContentDTO) query.uniqueResult();
+					
+	}
+	
+	
+	/**
+	 * 根据栏目id查询文章列表的第一条记录
+	 * @param columnId
+	 * @return
+	 */
+	public ContentDTO getContentDTOByColumnId(Long columnId){
+		StringBuilder sb = new StringBuilder("SELECT t.id as ctId,t.sort_num as sortNum,t.title_prefix as titlePrefix,t.title as title,")
+									 .append("t.pattern as pattern,t.source as source,t.author as author,")
+								     .append("t.content as content,t.index_flag as indexFlag,t.columnmu_id as columnId,t.base_file_id as baseFileId,")								   
+									 .append("t.create_time as createTime,c.title as columnName,c.type_id as typeId,t.app_status as appStatus ")
+								     .append("FROM cy_content t INNER JOIN cy_columnmu c ON c.id=t.columnmu_id WHERE t.columnmu_id=? ");
+									
+									
+		Query query = this.getSession().createSQLQuery(sb.toString())
+							.addScalar("ctId", LongType.INSTANCE).addScalar("sortNum", IntegerType.INSTANCE)
+							.addScalar("titlePrefix", StringType.INSTANCE).addScalar("title", StringType.INSTANCE)
+							.addScalar("pattern", StringType.INSTANCE).addScalar("source", StringType.INSTANCE)
+							.addScalar("author", StringType.INSTANCE)
+							.addScalar("content", TextType.INSTANCE).addScalar("indexFlag", ShortType.INSTANCE)
+							.addScalar("createTime", DateType.INSTANCE).addScalar("columnId", LongType.INSTANCE)
+							.addScalar("baseFileId", LongType.INSTANCE)
+							.addScalar("columnName", StringType.INSTANCE).addScalar("typeId", ShortType.INSTANCE)
+							.addScalar("appStatus", ShortType.INSTANCE)
+							.setResultTransformer(Transformers.aliasToBean(ContentDTO.class));
+		
+		query.setParameter(0, columnId);
+		query.setMaxResults(1);
+		
+		
+		return (ContentDTO) query.uniqueResult();
+					
+	}
+	
+	
+	
+	
+	/**
+	 * 查询用于首页显示的所有文章(按文章的发布时间降序排序)
+	 * @return
+	 */
+	public List<ShowContentDTO> searchContentDTOForIndex(){
+		StringBuilder sb = new StringBuilder("SELECT t.id as id,t.title_prefix as ctTitlePrefix,t.title as ctTitle,t.index_flag as ctIndexFlag,")
+									 .append("t.pattern as pattern,t.create_time as createTime,c1.id as clId,c1.title as clTitle,c1.index_num as clIndexNum,")
+									 .append("c1.sort_num as clSortNum,c1.is_index as clIsIndex,c2.id as clParId,c2.title as clParITitle,")
+									 .append("c2.index_num as clParIIndexNum,c2.show_type as showType ")
+									 .append("FROM cy_content t ")
+									 .append("LEFT JOIN cy_columnmu c1 ON  t.columnmu_id=c1.id ")
+									 .append("LEFT JOIN cy_columnmu c2 ON c1.parent_id =c2.id ")
+									 .append("WHERE t.index_flag>:flag AND t.status=:status AND t.parent_id IS NULL ")
+									 .append("ORDER BY t.create_time DESC ");
+		
+		Query query = this.getSession().createSQLQuery(sb.toString())
+							.addScalar("id", LongType.INSTANCE).addScalar("ctTitlePrefix", StringType.INSTANCE)
+							.addScalar("ctTitle", StringType.INSTANCE).addScalar("ctIndexFlag", ShortType.INSTANCE)
+							.addScalar("pattern", StringType.INSTANCE).addScalar("createTime", DateType.INSTANCE)
+							.addScalar("clId", LongType.INSTANCE).addScalar("clTitle", StringType.INSTANCE)
+							.addScalar("clIndexNum", IntegerType.INSTANCE).addScalar("clSortNum", IntegerType.INSTANCE)
+							.addScalar("clIsIndex", BooleanType.INSTANCE).addScalar("clParId", LongType.INSTANCE)
+							.addScalar("clParITitle", StringType.INSTANCE).addScalar("clParIIndexNum", IntegerType.INSTANCE)
+							.addScalar("showType", ShortType.INSTANCE)
+							.setResultTransformer(Transformers.aliasToBean(ShowContentDTO.class));
+		
+		query.setParameter("flag", Content.NOT_INDEX_FLAG);  //标记置于首页的
+		query.setParameter("status", Content.NORMAL_STATUS); //状态正常的
+		
+		return query.list();
+		
+	}
+	
+	
+	
+	/**
+	 * 根据置顶属性查询栏目下的文章
+	 * @param colId			栏目id
+	 * @param indexFlag     置顶属性
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Content> getIndexContentInColumMu(Long colId,Short indexFlag){
+		return this.getCriteria()
+					.add(Restrictions.eq("columnMu.id", colId))
+					.add(Restrictions.eq("indexFlag",indexFlag))
+					.add(Restrictions.eq("status",Content.NORMAL_STATUS))
+					.addOrder(Order.asc("createTime"))
+					.list();		
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public List<Content> getIndexContentByColum(Long colId){
+		return this.getCriteria()
+					.add(Restrictions.eq("columnMu.id", colId))
+					.add(Restrictions.gt("indexFlag", Content.NOT_INDEX_FLAG))
+					.add(Restrictions.eq("status",Content.NORMAL_STATUS))
+					.addOrder(Order.asc("indexFlag"))
+					.list();
+		
+	}
+	
+	
+	
+	/**
+	 * 查询栏目下置于首页显示的文章数量（包括手动置顶和系统自动置顶）
+	 */
+	public Long getIndexContentNumByColum(Long colId){
+		
+		return (Long) this.getCriteria()
+					.add(Restrictions.eq("columnMu.id", colId))
+					.add(Restrictions.gt("indexFlag", Content.NOT_INDEX_FLAG))	
+					.add(Restrictions.eq("status",Content.NORMAL_STATUS))
+					.setProjection(Projections.rowCount())
+					.uniqueResult();
+		
+	}
+	
+	
+	/**
+	 * 根据条件更新IndexFlag属性
+	 * @param val			更改值
+	 * @param columId		栏目id
+	 * @param range			大于IndexFlag的值
+	 * @param isCrossTop	是否联表更新
+	 */
+	public void updateIndexFlagByCondition(Short val,Long columId,Short range,boolean isCrossTop){	
+		StringBuilder sb = new StringBuilder();
+		
+		if(!isCrossTop){
+			sb.append("UPDATE cy_content SET index_flag=? WHERE columnmu_id=? AND index_flag>? AND status=?");
+			this.executeSql(sb.toString(), val,columId,range,Content.NORMAL_STATUS);
+			
+		}else{
+			
+			sb.append("UPDATE cy_content t INNER JOIN cy_columnmu c ON t.columnmu_id=c.id INNER JOIN cy_columnmu c1 ON c1.id=c.parent_id ")
+			  .append("SET t.index_flag=? WHERE c1.id=? AND t.index_flag>? AND status=? ");
+			
+			this.executeSql(sb.toString(),val,columId,range,Content.NORMAL_STATUS);
+
+			
+		}
+				
+	}
+	
+	
+	
+	
+	/**
+	 * 更新栏目下最新前{maxSize}条记录的（按发布时间降序排序) 的IndexFlag属性
+	 * @param val
+	 * @param columId
+	 * @param maxSize
+	 */
+	public void updateIndexFlagForNewestContent(Short val,Long columId,int maxSize){
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE cy_content SET index_flag=? WHERE id in (")
+		  .append("SELECT a.id FROM (")
+		  .append("SELECT b.id FROM cy_content b WHERE b.columnmu_id=? AND b.status=? ORDER BY b.create_time DESC LIMIT 0,?) a )");
+
+		this.executeSql(sb.toString(),val,columId,Content.NORMAL_STATUS,maxSize);
+	}
+	
+	
+	/**
+	 * 更新栏目下的子栏目（按序号升序排序）前{topMaxSize}条记录下
+	 * 最新{newestMaxSize}条文章记录（按发布时间降序排序）  的IndexFlag属性
+	 * @param val
+	 * @param parColumId
+	 * @param topMaxSize
+	 * @param newestMaxSize
+	 */
+	public void updateIndexFlagForNewestContentInPreColumn(Short val,Long parColumId,int topMaxSize,int newestMaxSize){
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE cy_content SET index_flag=? WHERE id in (")
+		  .append("SELECT a.id FROM (")
+		  		.append("SELECT b.id FROM cy_content b WHERE b.columnmu_id IN (")
+		  		.append("SELECT m.id FROM (")
+		  		.append("SELECT c.id FROM cy_columnmu c WHERE c.parent_id=? AND c.is_ignore_pre=? ORDER BY sort_num ASC LIMIT 0,?")
+		  		.append(")m ")
+		  .append(")")
+		  .append("AND b.index_flag<>? AND b.status=? ORDER BY b.create_time DESC LIMIT 0,?")
+		  .append(") a )");
+		
+		
+		this.executeSql(sb.toString(),val,parColumId,false,topMaxSize,Content.NORMAL_STATUS,Content.NORMAL_STATUS,newestMaxSize);
+	}
+	
+	
+	/**
+	 * 更新栏目下的所有子栏目下
+	 * 最新{newestMaxSize}条文章记录（按发布时间降序排序）  的IndexFlag属性 
+	 * @param val
+	 * @param parColumId
+	 * @param newestMaxSize
+	 */
+	public void updateIndexFlagForNewestContentInPreColumn(Short val,Long parColumId,int newestMaxSize){
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE cy_content SET index_flag=? WHERE id in (")
+		  .append("SELECT a.id FROM (")
+		  		.append("SELECT b.id FROM cy_content b WHERE b.columnmu_id IN (")
+		  		.append("SELECT m.id FROM (")
+		  		.append("SELECT c.id FROM cy_columnmu c WHERE c.parent_id=? AND c.is_ignore_pre=? ")
+		  		.append(")m ")
+		  .append(")")
+		  .append("AND b.index_flag<>? AND b.status=? ORDER BY b.create_time DESC LIMIT 0,?")
+		  .append(") a )");
+		
+		
+		this.executeSql(sb.toString(),val,parColumId,false,Content.NORMAL_STATUS,Content.NORMAL_STATUS,newestMaxSize);
+	}
+	
+	
+	
+	
+	public boolean isHasRecordInColumn(Long columnId){
+		Long num = 	(Long) this.getCriteria().add(Restrictions.eq("columnMu.id", columnId))
+					.add(Restrictions.eq("status", Content.NORMAL_STATUS))
+					.setProjection(Projections.rowCount()).uniqueResult();
+		
+		if(num>0){
+			return true;
+		}else{
+			return false;
+		}
+		
+		
+	}
+	
+	/**
+	 * 按条件查询对象
+	 * @param columnId 栏目id
+	 * @param curPage  当前页
+	 * @param pageSize 页面大小
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Page<InnerShowContentDTO> searchEntityByCondtion(Long columnId,String title,Integer curPage,
+					Integer pageSize,Integer days){
+		
+		StringBuilder countBuilder = new StringBuilder("SELECT count(*) as num FROM cy_content WHERE 1=1 ");		
+		StringBuilder listBuilder = new StringBuilder("SELECT id,title,create_time as time,index_flag as indexFlag,pattern ")
+							                  .append("FROM cy_content WHERE 1=1 ");
+		
+		if(columnId!=null){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND columnmu_id=:colId  ");
+		}
+		
+		if(!StringUtils.isBlank(title)){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND title LIKE:title ");
+		}
+		
+		if(days!=null&&days!=0){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND create_time >=:dateString ");
+		}
+		
+		this.bulidQueryStrItem(countBuilder, listBuilder, "AND status=:status AND parent_id IS NULL ");
+		
+		this.bulidQueryStrItem(countBuilder, listBuilder, "ORDER BY index_flag<>:flag,create_time DESC ");
+		
+	    Query queryCount =  this.getSession().createSQLQuery(countBuilder.toString()).addScalar("num", LongType.INSTANCE);
+	    
+		Query queryList = this.getSession().createSQLQuery(listBuilder.toString())
+									.addScalar("id", LongType.INSTANCE)
+									.addScalar("title", StringType.INSTANCE)
+									.addScalar("time", DateType.INSTANCE)
+									.addScalar("indexFlag", ShortType.INSTANCE).addScalar("pattern", StringType.INSTANCE)
+									.setResultTransformer(Transformers.aliasToBean(InnerShowContentDTO.class))									
+									.setFirstResult( (curPage-1) * pageSize )
+									.setMaxResults(pageSize);
+		if(columnId!=null){
+			this.setQueryParamsVal(queryCount, queryList, "colId", columnId);
+		}
+		
+		if(!StringUtils.isBlank(title)){
+			this.setQueryParamsVal(queryCount, queryList, "title", "%"+ title +"%");
+		}
+		
+		if(days!=null&&days!=0){
+			Date searchDate=new Date();
+			Calendar calendar=Calendar.getInstance();
+			calendar.add(Calendar.DAY_OF_MONTH, -(days));
+			searchDate=calendar.getTime();
+			String dateString = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(searchDate);
+			this.setQueryParamsVal(queryCount, queryList, "dateString", dateString);
+		}
+		this.setQueryParamsVal(queryCount, queryList, "status", Content.NORMAL_STATUS);
+		this.setQueryParamsVal(queryCount, queryList, "flag", Content.IN_INDEX_FLAG);
+		
+		
+		return new Page<InnerShowContentDTO>(curPage, pageSize, queryList.list(), (Long) queryCount.uniqueResult());
+	}
+	
+	
+	
+	
+	public InnerShowContentDTO getFirstContentInColumn(Long columnId){
+				
+		StringBuilder sb = new StringBuilder("SELECT id,title,create_time as time,index_flag as indexFlag,pattern,content ")
+							         .append("FROM cy_content ")
+							         .append("WHERE columnmu_id=? AND status=? AND parent_id IS NULL ");
+								
+
+		
+		Query query = this.getSession().createSQLQuery(sb.toString())
+									.addScalar("id", LongType.INSTANCE).addScalar("title", StringType.INSTANCE)
+									.addScalar("time", DateType.INSTANCE).addScalar("indexFlag", ShortType.INSTANCE)
+									.addScalar("pattern", StringType.INSTANCE).addScalar("content", TextType.INSTANCE)
+									.setResultTransformer(Transformers.aliasToBean(InnerShowContentDTO.class))
+									.setParameter(0, columnId)
+									.setParameter(1, Content.NORMAL_STATUS)
+									.setMaxResults(1);
+		
+		
+		return (InnerShowContentDTO) query.uniqueResult();
+		}
+	
+	
+	
+	
+	
+	/**
+	 * 根据id查询对象到DTO中
+	 * @param id
+	 * @return
+	 */
+	public InnerContentDetailDTO getContentDetailById(Long id){
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT t.id as id,t.author as author,t.source as source,t.title as title,")
+		  .append("t.create_time as createTime,t.content as content,t.view_path as viewPath,t.activity_id as activityId,t.see_org_id as seeOrgId, ")
+		  .append("m.id as columnId,m.type_id as typeId,")
+		  .append("m.title as columnTitle,p.id as parColumnId,p.title as parColumnTitle ")
+		  .append("FROM cy_content t ")
+		  .append("INNER JOIN cy_columnmu m ON t.columnmu_id=m.id ")
+		  .append("LEFT JOIN cy_columnmu p ON m.parent_id=p.id ")
+		  .append("WHERE t.id =:tid AND t.status=:tus ");
+		
+		Query query = this.getSession().createSQLQuery(sb.toString())
+					  .addScalar("id", LongType.INSTANCE).addScalar("author", StringType.INSTANCE)
+					  .addScalar("source", StringType.INSTANCE).addScalar("title", StringType.INSTANCE)
+					  .addScalar("createTime", DateType.INSTANCE).addScalar("content", TextType.INSTANCE)
+					  .addScalar("viewPath", StringType.INSTANCE).addScalar("columnId", LongType.INSTANCE)
+					  .addScalar("typeId", ShortType.INSTANCE).addScalar("columnTitle", StringType.INSTANCE)
+					  .addScalar("parColumnId", LongType.INSTANCE).addScalar("parColumnTitle", StringType.INSTANCE)
+					  .addScalar("activityId", LongType.INSTANCE).addScalar("seeOrgId", StringType.INSTANCE)
+					  .setResultTransformer(Transformers.aliasToBean(InnerContentDetailDTO.class))
+					  .setParameter("tid",id)
+		  			  .setParameter("tus",Content.NORMAL_STATUS);
+		
+		return (InnerContentDetailDTO) query.uniqueResult();
+
+	}
+	
+	/**
+	 * 根据id查询对象前后的对象
+	 * @param id
+	 * @return
+	 */
+	public List<ContentItem> getPreAndNextContent(Long id,Long columnId){
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT id,title,pattern as viewPath FROM cy_content WHERE id = (")
+		  .append("SELECT MAX(id) FROM cy_content WHERE id<:id AND columnmu_id=:colId AND parent_id IS NULL AND status=:stu ) ")
+		  .append("OR id = (")
+		  .append("SELECT MAX(id) FROM cy_content WHERE id>:id AND columnmu_id=:colId AND parent_id IS NULL AND status=:stu ) ");
+		
+		Query query = this.getSession().createSQLQuery(sb.toString())
+				      .addScalar("id", LongType.INSTANCE).addScalar("title", StringType.INSTANCE)
+				      .addScalar("viewPath", StringType.INSTANCE)
+				      .setResultTransformer(Transformers.aliasToBean(ContentItem.class))
+				      .setParameter("id",id)
+				      .setParameter("colId",columnId)
+				      .setParameter("stu",Content.NORMAL_STATUS);
+		
+		return query.list();
+				
+	}
+	
+	
+	public List<ContentItem> getContentItemByCondition(Long columnId,Long parId){
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT id,title,view_path as viewPath FROM cy_content WHERE 1=1 ");
+		
+		if(columnId!=null){
+			sb.append("AND columnmu_id=:colId AND status=:tus ");
+			sb.append("ORDER BY create_time DESC ");
+	
+		}else if(parId!=null){
+			sb.append("AND parent_id=:parId AND status=:tus ");
+			sb.append("ORDER BY sort_num ASC ");
+		}
+		 
+			
+		Query query = this.getSession().createSQLQuery(sb.toString())
+				      .addScalar("id", LongType.INSTANCE).addScalar("title", StringType.INSTANCE)
+				      .addScalar("viewPath", StringType.INSTANCE)
+				      .setResultTransformer(Transformers.aliasToBean(ContentItem.class));
+				     
+				      
+		
+		if(columnId!=null){
+			query.setParameter("colId",columnId);
+			query.setParameter("tus",Content.NORMAL_STATUS);
+	
+		}else if(parId!=null){
+			query.setParameter("parId",parId);
+			query.setParameter("tus",Content.NORMAL_STATUS);
+		
+		}
+		
+		return query.list();
+				
+	}
+	
+	
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	public Page<HistoryContentDTO> searchHistoryContenByPage(ContentQueryDTO queryDTO){
+		StringBuilder countBuilder = new StringBuilder("SELECT COUNT(*) as num FROM cy_content WHERE parent_id IS NULL  ");
+		StringBuilder listBuilder = new StringBuilder(
+									"SELECT id,sort_num as sortNum,title,pattern,source,author,create_time as createTime,")
+									.append("history_column as historyColumn FROM cy_content WHERE parent_id IS NULL ");
+				
+		
+		this.bulidQueryStrItem(countBuilder, listBuilder, "AND status=:tus ");
+		
+		if(!StringUtils.isBlank(queryDTO.getTitle())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND title LIKE:title ");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getSource())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND source=:source ");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getAuthor())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND author=:author ");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getSidx()) && !StringUtils.isBlank(queryDTO.getSord())){
+			
+			String filedName = ReflectUtil.getFiledValueByAnnotation(getInheritClass(),queryDTO.getSidx());	
+			listBuilder.append(generateOrderSql(queryDTO.getSord(),filedName,null));
+		}
+		
+		
+		Query queryCount = this.getSession().createSQLQuery(countBuilder.toString()).addScalar("num", LongType.INSTANCE);
+		Query queryList = this.getSession().createSQLQuery(listBuilder.toString())
+								.addScalar("id", LongType.INSTANCE).addScalar("sortNum", IntegerType.INSTANCE)
+								.addScalar("title", StringType.INSTANCE).addScalar("pattern", StringType.INSTANCE)							
+								.addScalar("source", StringType.INSTANCE).addScalar("author", StringType.INSTANCE)
+								.addScalar("historyColumn", StringType.INSTANCE).addScalar("createTime", DateType.INSTANCE)								
+								.setResultTransformer(Transformers.aliasToBean(HistoryContentDTO.class));	
+	
+		this.setQueryParamsVal(queryCount, queryList, "tus", Content.DEL_STATUS);
+		
+		if(!StringUtils.isBlank(queryDTO.getTitle())){
+			this.setQueryParamsVal(queryCount, queryList, "title","%"+ queryDTO.getTitle()+"%");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getSource())){
+			this.setQueryParamsVal(queryCount, queryList, "source", queryDTO.getSource());
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getAuthor())){
+			this.setQueryParamsVal(queryCount, queryList, "author", queryDTO.getAuthor());
+		}
+		
+		queryList.setFirstResult(queryDTO.getStartQuery());
+		queryList.setMaxResults(queryDTO.getPageSize());
+		
+		return new Page<HistoryContentDTO>(queryDTO.getCurrentPage(), queryDTO.getPageSize(), queryList.list(), (Long) queryCount.uniqueResult());
+		
+	}
+	
+	
+	public List<Content> getListShowTypeContent(Long topId,Short indexFlag){
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT t.* FROM cy_content t INNER JOIN cy_columnmu c ON t.columnmu_id=c.id ");
+		sb.append("WHERE c.parent_id=? AND index_flag>? AND c.is_ignore_pre=? ORDER BY create_time ASC ");
+		
+		Query query = this.getSession().createSQLQuery(sb.toString()).addEntity(this.getInheritClass())
+					  .setParameter(0, topId).setParameter(1, indexFlag).setParameter(2, false);
+		
+		return query.list();
+		
+	}
+
+
+	@Override
+	public Page<ContentDTO> searchAppContent(ContentQueryDTO queryDTO) {
+		StringBuilder countBuilder = new StringBuilder("SELECT COUNT(*) as num FROM cy_content c  LEFT JOIN cy_columnmu m ON c.columnmu_id = m.id  WHERE 1=1 ");
+		StringBuilder listBuilder = new StringBuilder("SELECT c.id AS ctId, c.sort_num AS sortNum,c.title_prefix AS titlePrefix,c.title,c.pattern,c.source,") 
+											 .append("c.author, c.create_time AS createTime,c.app_status AS appStatus ") 												
+											 .append("FROM cy_content c LEFT JOIN cy_columnmu m ON c.columnmu_id = m.id WHERE 1=1  ");
+		if(queryDTO.getColumId()!=null){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND c.columnmu_id=:colId ");
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND c.parent_id IS NULL ");
+	
+		}else if(queryDTO.getParId()!=null){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND (c.parent_id=:parId OR c.id=:parId) ");
+		}
+		
+		if(queryDTO.getDays()!=null&&queryDTO.getDays()!=0){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND c.create_time >=:dateString ");
+		}
+		
+		
+		if(!StringUtils.isBlank(queryDTO.getTitle())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND c.title LIKE:title ");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getSource())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND c.source=:source ");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getAuthor())){
+			this.bulidQueryStrItem(countBuilder, listBuilder, "AND c.author=:author ");
+		}
+		
+		this.bulidQueryStrItem(countBuilder, listBuilder, "AND m.type_id=:type ");
+		this.bulidQueryStrItem(countBuilder, listBuilder, "AND status=:status ");
+		
+		listBuilder.append("ORDER BY c.app_status DESC,c.create_time DESC ");
+		
+		
+		Query queryCount = this.getSession().createSQLQuery(countBuilder.toString()).addScalar("num", LongType.INSTANCE);
+		Query queryList = this.getSession().createSQLQuery(listBuilder.toString())
+								.addScalar("ctId", LongType.INSTANCE).addScalar("sortNum", IntegerType.INSTANCE)
+								.addScalar("titlePrefix", StringType.INSTANCE)
+								.addScalar("title", StringType.INSTANCE).addScalar("pattern", StringType.INSTANCE)
+								.addScalar("source", StringType.INSTANCE).addScalar("author", StringType.INSTANCE)
+								.addScalar("createTime", DateType.INSTANCE)
+								.addScalar("appStatus", ShortType.INSTANCE)
+								.setResultTransformer(Transformers.aliasToBean(ContentDTO.class));
+		if(queryDTO.getColumId()!=null){
+			this.setQueryParamsVal(queryCount, queryList, "colId", queryDTO.getColumId());
+			
+		}else if(queryDTO.getParId()!=null){
+			this.setQueryParamsVal(queryCount, queryList, "parId", queryDTO.getParId());
+		}	
+		
+		if(queryDTO.getDays()!=null&&queryDTO.getDays()!=0){
+			Date searchDate=new Date();
+			Calendar calendar=Calendar.getInstance();
+			calendar.add(Calendar.DAY_OF_MONTH, -(queryDTO.getDays()));
+			searchDate=calendar.getTime();
+			String dateString = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(searchDate);
+			this.setQueryParamsVal(queryCount, queryList, "searchDate", dateString);
+		}
+		
+		
+		if(!StringUtils.isBlank(queryDTO.getTitle())){
+			this.setQueryParamsVal(queryCount, queryList, "title","%"+ queryDTO.getTitle()+"%");
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getSource())){
+			this.setQueryParamsVal(queryCount, queryList, "source", queryDTO.getSource());
+		}
+		
+		if(!StringUtils.isBlank(queryDTO.getAuthor())){
+			this.setQueryParamsVal(queryCount, queryList, "author", queryDTO.getAuthor());
+		}
+		
+		this.setQueryParamsVal(queryCount, queryList, "type", ColumnMu.NEWS_LIST_TYPE);
+		this.setQueryParamsVal(queryCount, queryList, "status", Content.NORMAL_STATUS);
+		
+		
+		
+		queryList.setFirstResult(queryDTO.getStartQuery());
+		queryList.setMaxResults(queryDTO.getPageSize());
+		
+		Page<ContentDTO> contentPage= new Page<ContentDTO>(queryDTO.getCurrentPage(), queryDTO.getPageSize(), queryList.list(), (Long) queryCount.uniqueResult());
+		//为结果排序，此序号是显示结果序号，非数据库序号
+		int start=queryDTO.getStartQuery();
+		for (ContentDTO dto : contentPage.getList()) {
+			dto.setSort((long) ++start);
+		}
+		
+		return contentPage;
+	}
+
+
+
+	@Override
+	public void delContentByActivityId(Long activityId) {
+		Assert.notNull(activityId, "activityId can not be null");
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("delete from cy_content where activity_id = ?");
+		Query query = this.getSession().createSQLQuery(sql.toString()).setLong(0, activityId);
+		query.executeUpdate();
+	}
+	
+	
+	
+	
+	
+	
+	
+}

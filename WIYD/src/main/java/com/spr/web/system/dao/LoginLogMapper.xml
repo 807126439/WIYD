@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spr.web.system.dao.ILoginLogDao" >
+  
+ <resultMap id="BaseResultMap" type="com.spr.web.system.entity.LoginLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="login_ip" property="loginIp" jdbcType="BIGINT" />
+    <result column="log_details" property="logDetails" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, user_id,user_name,  login_ip, log_details, gmt_create, gmt_modified
+  </sql>
+  
+  <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from c_login_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  
+  <select id="countByCondition" resultType="java.lang.Long" parameterType="hashmap">
+  	SELECT  COUNT(*) FROM c_login_log 
+    <include refid="select_condition" />	
+      	 	
+  </select>
+  
+  <select id="selectListByCondition" parameterType="hashmap" resultMap="BaseResultMap">
+  	
+  	select * from c_login_log	 
+  	<include refid="select_condition" />	    	     	   
+  	
+  	<if test="sidx!=null and sord!=null">
+	  ORDER BY ${sidx} ${sord}
+	</if>	
+  	<if test="startQuery!=null and  pageSize!=null">
+  	  LIMIT #{startQuery},#{pageSize}  	  	
+  	</if>
+  
+  </select>
+  
+  <sql id="select_condition">
+   	<where>	
+   		<if test="userName!=null">
+   			<bind name="userNameLike" value="'%' + _parameter.userName + '%'"/>
+  		  	user_name LIKE #{userNameLike}   
+   		</if>  		
+   		<if test="startTime!=null">
+   			AND  DATEDIFF(gmt_create, #{startTime})>0
+   		</if>
+   		<if test="endTime!=null">
+   			AND  DATEDIFF(gmt_create, #{endTime})&lt;0
+   		</if>
+   	
+   	</where>
+   
+  </sql>
+  
+  
+  
+  
+  
+  
+  <!-- 写操作 -->
+  <delete id="deleteById" parameterType="java.lang.Long" >
+    delete from c_login_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+ 
+  <insert id="insert" parameterType="com.spr.web.system.entity.LoginLog" useGeneratedKeys="true" keyProperty="id">
+    insert into c_login_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="loginIp != null" >
+        login_ip,
+      </if>
+      <if test="logDetails != null" >
+        log_details,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+       <if test="userId != null" >
+         #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>     
+      <if test="loginIp != null" >
+        #{loginIp,jdbcType=BIGINT},
+      </if>
+      <if test="logDetails != null" >
+        #{logDetails,jdbcType=VARCHAR},
+      </if>
+       <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <update id="updateSelective" parameterType="com.spr.web.system.entity.LoginLog" >
+    update c_login_log
+    <set >
+    	<if test="userId != null" >
+        user_id = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginIp != null" >
+        login_ip = #{loginIp,jdbcType=BIGINT},
+      </if>
+      <if test="logDetails != null" >
+        log_details = #{logDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="update" parameterType="com.spr.web.system.entity.LoginLog" >
+    update c_login_log
+    set user_id = #{userId,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      login_ip = #{loginIp,jdbcType=BIGINT},
+      log_details = #{logDetails,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+</mapper>

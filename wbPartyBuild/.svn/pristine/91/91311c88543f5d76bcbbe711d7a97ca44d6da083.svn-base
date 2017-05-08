@@ -1,0 +1,13 @@
+@charset "utf-8";
+.Hui-article{width: 595px; height: 842px; border-color: red;margin: 0px auto;}
+.Hui-article .text-c{text-align: center;}
+ .Hui-article .title{text-align: center;}
+.Hui-article .id{margin-left: 30px}
+.Hui-article .a{width: 100px}
+.Hui-article .a1{width: 150px;text-align: left;}
+.Hui-article .jianyi{width: 495px;height: 180px;}
+.Hui-article .but{margin-left:500px;margin-top: 20px; margin-bottom: 20px;}
+
+
+
+

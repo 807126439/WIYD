@@ -1,0 +1,5 @@
+body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 0px;}
+.selectable .ui-selecting { background: #FECA40; }
+.selectable .ui-selected { background: #F39814; color: white; }
+.selectable { list-style-type: none; margin: -10; padding: 2; width: 115%; }
+.selectable li { margin: 0.5px; padding: 0.3em; font-size: 1.4em; height: 18px; }

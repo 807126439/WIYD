@@ -1,25 +1,374 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>WIYD</groupId>
   <artifactId>WIYD</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
-
+  <packaging>war</packaging>
   <name>WIYD</name>
-  <url>http://maven.apache.org</url>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
+  
+  <build>
+  	<plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+      	<artifactId>maven-war-plugin</artifactId>
+      	<configuration>
+      		<version>3.0</version>
+      	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
+  	<!-- spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>4.1.6.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.dozer</groupId>
+			<artifactId>dozer</artifactId>
+			<version>5.3.2</version>
+		</dependency>
+		
+		<!-- spring security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-aspects</artifactId>
+			<version>3.2.9.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-acl</artifactId>
+			<version>3.2.9.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-crypto</artifactId>
+			<version>3.2.9.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
+			<version>3.2.9.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>3.2.9.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>3.2.9.RELEASE</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-cas</artifactId>
+		    <version>3.2.9.RELEASE</version>
+		</dependency>
+		
+		
+		<!-- mybatis -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		
+		<dependency>
+		    <groupId>org.mybatis</groupId>
+		    <artifactId>mybatis-spring</artifactId>
+		    <version>1.2.3</version>
+		</dependency>
+		
+		<!-- mysql -->
+		<dependency>
+  		  <groupId>mysql</groupId>
+  		  <artifactId>mysql-connector-java</artifactId>
+  		  <version>5.1.29</version>
+   	   </dependency>
+
+
+		<dependency>
+			<groupId>com.mchange</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.5.2</version>
+		</dependency>
+		
+		
+		<!-- StringUtil -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+		
+		<!-- jsonArray -->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+		</dependency>
+		
+		<!-- base64加密 -->
+		<dependency>
+		    <groupId>org.apache.axis</groupId>
+		    <artifactId>axis</artifactId>
+		    <version>1.4</version>
+		</dependency>
+		
+		<!-- 验证码 -->
+		<dependency>
+			<groupId>com.custom-kaptcha</groupId>
+			<artifactId>kaptcha</artifactId>
+			<version>2.3.2</version>
+		</dependency>
+		
+		<!-- @JsonProperty 将bean序列化时属性名变更为其他名称 -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		
+		<!-- @JsonProperty 将bean序列化时属性名变更为其他名称 -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.7.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.7.4</version>
+		</dependency>
+        <dependency>  
+            <groupId>com.fasterxml.jackson.core</groupId>  
+            <artifactId>jackson-databind</artifactId>  
+            <version>2.1.0</version>  
+        </dependency>  
+		
+		<!-- 对文件快速操作包,读写保存等 -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+		
+	<!-- 将pdf转化为IMG -->
+	<dependency>
+	    <groupId>org.swinglabs</groupId>
+	    <artifactId>pdf-renderer</artifactId>
+	    <version>1.0.5</version>
+	</dependency>
+	
+	<!-- 序列化和反序列化工具 -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		
+		<!-- apache.tools类,有一个zip压缩工具 -->
+		<dependency>
+			<groupId>ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.6.5</version>
+		</dependency>
+		
+	<!-- 将网页转换为SVG格式图片工具 -->	
+	<dependency>
+	    <groupId>net.sf.cssbox</groupId>
+	    <artifactId>cssbox</artifactId>
+	    <version>4.12</version>
+	</dependency>
+		
+		<!-- jpeg图片处理工具类 -->	
+		<dependency>
+			<groupId>com.drewnoakes</groupId>
+			<artifactId>metadata-extractor</artifactId>
+			<version>2.9.1</version>
+		</dependency>
+		
+		
+		<!-- openOffice -->
+		<dependency>
+	  		<groupId>com.artofsolving</groupId>
+	  		<artifactId>jodconverter</artifactId>
+	  		<version>2.2.2 </version>
+	  	</dependency>
+	  	<dependency>
+	  		<groupId>com.artofsolving</groupId>
+	  		<artifactId>jodconverter-cli</artifactId>
+	  		<version>2.2.2</version>
+	  	</dependency>
+	
+	  	<dependency>
+	  		<groupId>org.openoffice</groupId>
+	  		<artifactId>jurt</artifactId>
+	  		<version>4.1.2</version>
+	  	</dependency>
+	  	<dependency>
+	  		<groupId>com.thoughtworks.xstream</groupId>
+	  		<artifactId>xstream</artifactId>
+	  		<version>1.4.9</version>
+	  	</dependency>
+	  	<dependency>
+	  		<groupId>org.openoffice</groupId>
+	  		<artifactId>juh</artifactId>
+	  		<version>4.1.2</version>
+	  	</dependency>
+	  	<dependency>
+	  		<groupId>org.openoffice</groupId>
+	  		<artifactId>ridl</artifactId>
+	  		<version>4.1.2</version>
+	  	</dependency>
+	  	<dependency>
+	  		<groupId>org.openoffice</groupId>
+	  		<artifactId>unoil</artifactId>
+	  		<version>4.1.2</version>
+	  	</dependency>
+	  	
+	  <dependency>
+	  		<groupId>pdfbox</groupId>
+	  		<artifactId>pdfbox</artifactId>
+	  		<version>0.7.3</version>
+	  	</dependency>
+	  	
+	  	
+	  	<!-- print转换flash -->
+	<dependency>
+	    <groupId>com.jacob</groupId>
+	    <artifactId>jacob</artifactId>
+	    <version>1.10</version>
+	</dependency>
+	
+	<!-- poi office操作工具 -->
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi</artifactId>
+		    <version>3.15</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-ooxml</artifactId>
+		    <version>3.15</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-examples</artifactId>
+		    <version>3.15</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-excelant</artifactId>
+		    <version>3.15</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-scratchpad</artifactId>
+		    <version>3.15</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-ooxml-schemas</artifactId>
+		    <version>3.15</version>
+		</dependency>
+		
+		<!-- freemarker工具 -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.23</version>
+		</dependency>
+		
+		<!-- log4j -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-api</artifactId>
+		    <version>1.7.5</version>
+		</dependency>
+		
+		
+		<!-- redis -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.8.1</version>
+		</dependency>
+		
+		<!-- 上传文件工具包,解析request获取文件 -->
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+		
+		<!-- 定时器组件 -->
+		<dependency>
+	      <groupId>org.quartz-scheduler</groupId>
+	      <artifactId>quartz</artifactId>
+	      <version>2.2.1</version>
+	      <exclusions>
+	        <exclusion>
+	          <artifactId>c3p0</artifactId>
+	          <groupId>c3p0</groupId>
+	        </exclusion>
+	      </exclusions>
+	    </dependency>
+	    
+	    <!-- 阿里分布式框架 -->
+	    <dependency>
+           <groupId>com.alibaba</groupId>
+           <artifactId>dubbo</artifactId>
+           <version>2.5.3</version>
+           <exclusions>
+               <exclusion>
+                   <groupId>org.springframework</groupId>
+                   <artifactId>spring</artifactId>
+               </exclusion>
+           </exclusions>
+       </dependency>
+	
   </dependencies>
 </project>

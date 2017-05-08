@@ -1,0 +1,76 @@
+/**
+ * 首页样式
+ * @author 张子操
+ */
+
+html{height: 100%;}
+body{background-color:#ecf0f1;height: 100%;font-family: "Microsoft YaHei";word-break: break-word;}
+a:hover{ text-decoration: none; }
+
+/**
+ * 头部样式
+ */
+.header{height:80px;position: absolute;top:0;left:0;right:0;background:url(../images/bg_header.png) repeat-x 0 0 #23b38f;box-shadow: 0 1px 2px 2px rgba(0,0,0,0.2);z-index: 999;-webkit-transition:left .6s;-o-transition:left .6s;transition:left .6s;}
+.header.opened{left:58px;}
+.header-title{position: absolute;top: 50%;left: 5px;margin-top: -25px;}
+.header .page_fold{position: absolute;top: 16px;left:8px;height: 24px;width: 24px; background: url(../images/icons.png) no-repeat;background-position: -3px -4px;cursor: pointer;}/*右侧折叠图标*/
+.header .page_fold.active{background-position: -31px -4px;}/*右侧折叠图标（折叠时）*/
+.header-buttons {position: absolute;right:20px;bottom:10px;}
+.header-buttons>a{color: #FFF;line-height:20px;font-size:14px;display:inline-block;padding:2px 8px;border-radius:13px;border: 1px solid transparent;min-width:52px;text-align: center;-webkit-transition: border-color 0.6s;-ms-transition: border-color 0.6s;-o-transition: border-color 0.6s;transition: border-color 0.6s;}
+.header-buttons>a:hover{border-color:#fff;background-color: rgba(0,0,0,.1);}
+.icon-home{display: inline-block;height: 20px;width:20px;background: url('../images/icons.png') no-repeat -64px -6px;vertical-align: text-bottom;}
+.icon-setting{display: inline-block;height: 20px;width:20px;background: url('../images/icons.png') no-repeat -92px -6px;vertical-align: text-bottom;}
+/*.icon-avatar-small{display: inline-block;height: 32px;width:32px;background: #f1f1f1;border-radius: 50% ;vertical-align: text-bottom;overflow: hidden;margin-right: 5px;}*/
+.header-buttons .header-buttons-user:hover{border-color:transparent;}
+
+/**
+ * 侧边菜单样式
+ */
+.sidebar{position: absolute;z-index: 999;top:80px;left:0;bottom:0;width:120px;background-color: #094460;overflow:visible;font-size: 14px;-webkit-transition:left .6s;-o-transition:left .6s;transition:left .6s;background:#32323a;
+    box-shadow: 0px 3px 3px 3px rgba(0,0,0,.2);}
+.sidebar-header-wrapper{text-align: center;line-height: 46px;color: #fff;font-size: 14px;background: #26262d;cursor: pointer;}
+.sidebar-menu-wrapper{position: absolute;top: 46px;bottom: 0;left: 0;right: 0;}
+
+/*一级菜单样式*/
+.sidebar-menu{box-sizing:border-box;}
+.sidebar-menu .sidebar-menu-item>a{display: block;color: #FEFEFE;padding:2px 0;overflow: hidden;text-align: center;}
+.sidebar-menu>.sidebar-menu-item>a{padding:5px 0;}
+.sidebar-menu .sidebar-menu-item>a:hover{background-color: #3c3c44;}
+.sidebar-menu .sidebar-menu-item.active>a{background:#25252b;}
+.sidebar-menu .sidebar-menu-item>a span{display: block;font-size: 14px; line-height: 30px;padding:5px 5px 5px 5px;vertical-align: top}
+/*----菜单图标和折叠图标*/
+.sidebar-menu .icon_menu{overflow: hidden;vertical-align: top;display: block;}
+.sidebar-menu .sidebar-menu-item .icon_menu{width:60px;height: 60px; margin:auto;}
+
+/*二级菜单样式*/
+.sidebar-menu .sidebar-menu-item ul{display: none;padding: 4px 0 6px 0;background-color:#188c90;background-color: rgba(0,0,0,.1); }
+.sidebar-menu .sidebar-menu-item.active>ul{display: block;}
+/*----右侧菜单内部的-独立菜单样式*/
+.sidebar-menu .sidebar-menu-item.active>.sidebar-menu-innermenu{display: none;background-color:transparent; }
+.sidebar-menu.opened,.sidebar-menu .opened{padding-top: 0;}
+.sidebar-menu .opened>.sidebar-menu-item,.sidebar-menu.opened>.sidebar-menu-item{display: none;}
+.sidebar-menu .opened>.sidebar-menu-item.active,.sidebar-menu.opened>.sidebar-menu-item.active{display: block;}
+.sidebar-menu .opened>.sidebar-menu-item.active>.sidebar-menu-innermenu,.sidebar-menu.opened>.sidebar-menu-item.active>.sidebar-menu-innermenu{display: block;padding: 0;}
+.sidebar-menu .opened>.sidebar-menu-item.active>a,.sidebar-menu.opened>.sidebar-menu-item.active>a{position:relative;background: #26262d;border-top: 1px solid #45454e;}
+.sidebar-menu .opened>.sidebar-menu-item.active>a:before,.sidebar-menu.opened>.sidebar-menu-item.active>a .icon_menu{width: 26px;	height: 24px; background:url(../images/icons.png) no-repeat -118px -4px;opacity: 0.8;}
+.sidebar-menu .opened>.sidebar-menu-item.active>a:before,.sidebar-menu.opened>.sidebar-menu-item.active>a:hover .icon_menu{opacity:0.9;}
+
+/*三级菜单样式*/
+.sidebar-menu ul ul>.sidebar-menu-item>a>span{ line-height: 28px;font-size: 14px;}
+.sidebar-menu ul ul>.sidebar-menu-item>a>i{height: 38px;}
+
+/*菜单树叶子节点样式*/
+.sidebar-menu .sidebar-menu-item.sidebar-menu-item-end.active>a {background: #47474e;color:#fff;}
+
+/*菜单图标*/
+/*----一级*/
+.icon_menu_library{background:url(../images/icons_menu.png) no-repeat;background-position: 0 0px;}
+.icon_menu_user{background:url(../images/icons_menu.png) no-repeat;background-position: -60px 0px;}
+.icon_menu_edit{background:url(../images/icons_menu.png) no-repeat;background-position: -120px 0px;}
+.icon_menu_ranking{background:url(../images/icons_menu.png) no-repeat;background-position: -180px 0px;}
+.icon_menu_system{background:url(../images/icons_menu.png) no-repeat;background-position: -240px 0px;}
+
+/**
+ * 主框架容器
+ */
+.main-container{position: absolute;top:80px;left:120px;right:0;bottom:0;overflow: hidden;-webkit-transition:left .6s;-o-transition:left .6s;transition:left .6s;}

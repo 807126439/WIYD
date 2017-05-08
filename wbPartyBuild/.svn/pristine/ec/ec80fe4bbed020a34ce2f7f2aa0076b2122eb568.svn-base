@@ -1,0 +1,13 @@
+.parenthesis5{height:248px;width: 36px; background: url('../../image/parenthesis5.png') no-repeat; margin:0px 6px;}
+.parenthesis6{height:310px;width: 36px; background: url('../../image/parenthesis6.png') no-repeat; margin:0px 6px;}
+.part1{margin: 20px;font-size: 18px;}
+.part1 .nodewrapper{ height: auto; }
+.part1 .level_1 .node{width: 120px;padding: 8px 20px;}
+.part1 .level_2 .nodewrapper+.nodewrapper{margin-top: 20px;}
+.part1 .level_2 .node{font-size: 16px;padding:6px 4px;background-color: #EBEDF1;color:#444444; }
+
+.part2{margin:50px 0px 0px 20px ;font-size: 18px;}
+.part2 .list-c{color:#444444}
+.part2 .line-left{width: 130px;text-align: center;}
+.part2 .line-right { margin-left: 130px;}
+.level_2 .nodewrapper:before{content:" ";width: 0px;height: auto;vertical-align: middle;display: inline-block;}

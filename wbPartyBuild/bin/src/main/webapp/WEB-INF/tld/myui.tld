@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+                        "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+	<tlib-version>1.0</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>m</short-name>
+	<uri>/myui-tags</uri>
+	<display-name>"自定义标签"</display-name>
+	
+
+
+	<tag>
+		<name>a_button</name>
+		<tag-class>com.wb.core.tag.HyperlinkJsTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>超链接按钮</description>
+		<attribute>
+			<name>context</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>文本</description>
+		</attribute>
+		<attribute>
+			<name>funMethod</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>点击方法</description>
+		</attribute>	
+		<attribute>
+			<name>operCode</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>操作权限码</description>
+		</attribute>
+		<attribute>
+			<name>style</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>样式</description>
+		</attribute>
+		<attribute>
+			<name>title</name>
+			<description>标题</description>
+		</attribute>
+		<attribute>
+			<name>varName</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>js变量名</description>
+		</attribute>
+		<attribute>
+			<name>className</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<description>属性class</description>
+		</attribute>
+		
+	</tag>
+			
+
+
+	<tag>
+		<name>a_top</name>
+		<tag-class>com.wb.core.tag.HyperlinkTopTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>超链接按钮</description>
+		<attribute>
+			<name>title</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>标题</description>
+		</attribute>		
+		<attribute>
+			<name>funMethod</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>点击方法</description>
+		</attribute>
+		<attribute>
+			<name>className</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>css class</description>
+		</attribute>
+		<attribute>
+			<name>operCode</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>操作权限码</description>
+		</attribute>
+		<attribute>
+			<name>icon</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>图标</description>
+		</attribute>
+		<attribute>
+			<name>context</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>j文本</description>
+		</attribute>
+		<attribute>
+			<name>id</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>id</description>
+		</attribute>
+		
+	</tag>
+	
+	
+	<tag>
+		<name>a_mini_button</name>
+		<tag-class>com.wb.core.tag.HyperlinkButtonTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>超链接按钮</description>
+		<attribute>
+			<name>title</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>标题</description>
+		</attribute>		
+		<attribute>
+			<name>funMethod</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>点击方法</description>
+		</attribute>
+		<attribute>
+			<name>className</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>css class</description>
+		</attribute>
+		<attribute>
+			<name>operCode</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>操作权限码</description>
+		</attribute>	
+		<attribute>
+			<name>context</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>j文本</description>
+		</attribute>
+		<attribute>
+			<name>id</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>id</description>
+		</attribute>
+		
+	</tag>
+	
+	
+	
+	
+	<tag>
+		<name>b_button</name>
+		<tag-class>com.wb.core.tag.ButtonTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>按钮</description>
+		<attribute>
+			<name>title</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>标题</description>
+		</attribute>
+		<attribute>
+			<name>funMethod</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>点击方法</description>
+		</attribute>
+		<attribute>
+			<name>className</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>css class</description>
+		</attribute>
+		<attribute>
+			<name>operCode</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>操作权限码</description>
+		</attribute>
+		<attribute>
+			<name>icon</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>图标</description>
+		</attribute>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>按钮值</description>
+		</attribute>
+		<attribute>
+			<name>type</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>按钮类型</description>
+		</attribute>
+		
+	</tag>
+	
+	
+	
+	<tag>
+		<name>a_tab</name>
+		<tag-class>com.wb.core.tag.TabJsTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>超链接按钮创建新的tab打开</description>
+		<attribute>
+			<name>context</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>文本</description>
+		</attribute>
+		<attribute>
+			<name>funMethod</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>点击方法</description>
+		</attribute>	
+		<attribute>
+			<name>operCode</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>操作权限码</description>
+		</attribute>
+		<attribute>
+			<name>style</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>样式</description>
+		</attribute>
+		<attribute>
+			<name>title</name>
+			<description>标题</description>
+		</attribute>
+		<attribute>
+			<name>varName</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>js变量名</description>
+		</attribute>
+		
+	</tag>
+	
+	
+	
+	<tag>
+		<name>dataTable_header</name>
+		<tag-class>com.wb.core.tag.DatatablesHeaderTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>DataTable自定义表头</description>
+		<attribute>
+			<name>headInfos</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>标题数据</description>
+		</attribute>
+	
+		<attribute>
+			<name>varName</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>js变量名</description>
+		</attribute>
+		
+		<attribute>
+			<name>editVarName</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>编辑js变量名</description>
+		</attribute>
+		
+		<attribute>
+			<name>delVarName</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>删除js变量名</description>
+		</attribute>
+		
+		
+	</tag>
+	
+	<tag>
+		<name>if_own_auth</name>
+		<tag-class>com.wb.core.tag.IfOwnAuthTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>根据权限码，判断是否有权限</description>
+	
+		
+		<attribute>
+			<name>authCode</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>权限码</description>
+		</attribute>
+		
+		
+	</tag>
+	
+</taglib>

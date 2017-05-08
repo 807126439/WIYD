@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+  <settings>
+      <setting name="cacheEnabled" value="true"/>
+      <setting name="lazyLoadingEnabled" value="true"/>
+      <setting name="multipleResultSetsEnabled" value="true"/>
+      <setting name="useColumnLabel" value="true"/>
+      <setting name="useGeneratedKeys" value="false"/>
+      <setting name="autoMappingBehavior" value="PARTIAL"/>
+      <setting name="defaultExecutorType" value="SIMPLE"/>
+      <setting name="defaultStatementTimeout" value="25"/>
+      <setting name="safeRowBoundsEnabled" value="false"/>
+      <setting name="mapUnderscoreToCamelCase" value="false"/>
+      <setting name="localCacheScope" value="SESSION"/>
+      <setting name="jdbcTypeForNull" value="OTHER"/>
+      <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+      <!-- 使用LOG4J实现日志管理 -->
+      <setting name="logImpl" value="LOG4J"/>
+  </settings>
+  
+  <typeAliases>
+  	<typeAlias type="com.spr.core.common.bean.DataQuery" alias="DataQuery"/>
+  	<typeAlias type="com.spr.core.common.bean.CommonParam" alias="CommonParam"/>
+
+  	<typeAlias type="com.spr.web.system.dto.authority.AuthorityDTO" alias="AuthorityDTO"/>
+  	
+  	<typeAlias type="com.spr.web.system.dto.user.UserDTO" alias="UserDTO"/>
+    <typeAlias type="com.spr.web.system.dto.user.LoginUserDTO" alias="LoginUserDTO"/>
+   
+    <package name="com.spr.web.system.entity"/>
+     
+  </typeAliases>
+</configuration>

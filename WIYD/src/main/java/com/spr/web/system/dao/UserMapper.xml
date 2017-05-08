@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spr.web.system.dao.IUserDao" >
+
+
+ <resultMap id="BaseResultMap" type="com.spr.web.system.entity.User" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="sort" property="sort" jdbcType="BIGINT" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="chinese_name" property="chineseName" jdbcType="VARCHAR" />
+    <result column="pass_word" property="passWord" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="memo" property="memo" jdbcType="VARCHAR" />
+    <result column="enabled" property="enabled" jdbcType="BIT" />
+    <result column="credentials_non_expired" property="credentialsNonExpired" jdbcType="BIT" />
+    <result column="account_non_locked" property="accountNonLocked" jdbcType="BIT" />
+    <result column="account_non_expired" property="accountNonExpired" jdbcType="BIT" />
+    <result column="user_type" property="userType" jdbcType="SMALLINT" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, sort, user_name, chinese_name, pass_word, email, phone,memo, enabled, 
+    credentials_non_expired, account_non_locked, account_non_expired, gmt_create, user_type, 
+    gmt_modified
+  </sql>
+  
+  <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from c_user
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+ 
+  
+  <select id="countByCondition"  parameterType="hashmap" resultType="java.lang.Long">
+  	SELECT  COUNT(*) FROM c_user u	  	
+  	 <include refid="select_contition" />	 
+  </select>
+  
+  
+  
+  <sql id="select_column_list"> 	
+		u.id,
+		u.gmt_modified AS gmtModified,
+		u.user_name AS userName,
+		u.chinese_name AS chineseName,
+		u.email,
+		u.user_type AS userType,		
+		u.phone,	
+		u.gmt_create AS gmtCreate,
+		u.memo,
+		u.enabled		
+  </sql>
+  
+   <sql id="select_contition">
+ 		<where>  		 		
+  		   <if test="userName!=null">
+  		   	 AND u.user_name LIKE #{userName}
+  		   </if> 
+  		    <if test="chineseName!=null">
+  		   	AND u.chinese_name LIKE #{chineseName}
+  		   </if>   	
+  		 
+  		</where> 	 	  	  	
+   </sql>
+
+  
+  <select id="selectListByCondition" resultType="UserDTO" parameterType="hashmap">  
+ 		 SELECT	
+  			u.id,
+			u.gmt_modified AS gmtModified,
+			u.user_name AS userName,
+			u.chinese_name AS chineseName,
+			u.email,
+			u.user_type AS userType,		
+			u.phone,	
+			u.gmt_create AS gmtCreate,
+			u.memo,
+			u.enabled,
+			uf.depart_name AS departName,
+      		uf.score AS score,
+     		uf.score_id AS scoreId,
+      		uf.is_ignore_rank AS isIgnoreRank,
+      		uf.photo_id AS photoId
+  		 FROM c_user u  
+  		 LEFT JOIN c_user_info uf ON u.id=uf.user_id
+  		 <include refid="select_contition" />
+  	
+		 <if test="sidx!=null and sord!=null">
+		 	ORDER BY ${sidx} ${sord}
+		 </if>
+		 <if test="startQuery!=null and  pageSize!=null">
+		 	LIMIT #{startQuery},#{pageSize}    	
+	  	 </if>
+    	  
+  </select>
+  
+ <select id="getDetailById" resultType="UserDTO">
+ 	 SELECT	
+  		u.id,
+		u.gmt_modified AS gmtModified,
+		u.user_name AS userName,
+		u.chinese_name AS chineseName,
+		u.email,
+		u.user_type AS userType,		
+		u.phone,
+		u.gmt_create AS gmtCreate,
+		u.memo,
+		u.enabled,
+		uf.depart_name AS departName,
+     	uf.score AS score,
+    	uf.score_id AS scoreId,
+     	uf.is_ignore_rank AS isIgnoreRank,
+     	uf.photo_id AS photoId
+  		FROM c_user u 
+  		LEFT JOIN c_user_info uf ON u.id=uf.user_id
+  	  where u.id = #{id,jdbcType=VARCHAR}
+ </select>
+
+
+
+  <select id="selectLoginUserByName" parameterType="java.lang.String" resultType="LoginUserDTO">
+  	 SELECT
+		u.id AS id,
+		u.user_name AS userName,
+		u.pass_word AS passWord,
+		u.chinese_name AS chineseName,
+		u.phone AS phone,
+		u.user_type AS userType,
+		u.enabled AS enabled,
+		u.account_non_expired AS accountNonExpired,
+		u.account_non_locked AS accountNonLocked,
+		u.credentials_non_expired AS credentialsNonExpired
+	FROM
+		c_user u
+	 WHERE u.user_name=#{userName}
+  
+  </select>
+
+
+  
+  <select id="getUniqueByProperty" resultMap="BaseResultMap" parameterType="CommonParam">
+  	 SELECT * FROM c_user WHERE ${filedName}=#{value}
+  
+  </select>
+  
+  <select id="checkUniqueIsExist" resultType="java.lang.Long" parameterType="CommonParam">
+  	 SELECT COUNT(*) FROM c_user WHERE ${filedName}=#{value} 
+  	 <if test="excludeId!=null">
+  	 	AND id  &lt;&gt; #{excludeId}
+  	 </if>
+  </select>
+  
+
+  
+  
+  <select id="selectWeiUser" resultType="com.spr.web.system.dto.user.WeiUserDTO">
+  SELECT id,user_name AS userName,chinese_name AS chineseName,depart_id AS departId FROM c_user 
+  WHERE user_type=0
+
+  </select>
+ 
+  
+  
+  <!-- 写操作 -->
+  <delete id="deleteById" parameterType="java.lang.String" >
+    delete from c_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+
+
+  
+ <insert id="insert" parameterType="com.spr.web.system.entity.User" >
+    <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE" >
+    	SELECT REPLACE(UUID(),'-','')
+    </selectKey>
+   insert into c_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="chineseName != null" >
+        chinese_name,
+      </if>
+      <if test="passWord != null" >
+        pass_word,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="memo != null" >
+        memo,
+      </if>
+      <if test="enabled != null" >
+        enabled,
+      </if>
+      <if test="credentialsNonExpired != null" >
+        credentials_non_expired,
+      </if>
+      <if test="accountNonLocked != null" >
+        account_non_locked,
+      </if>
+      <if test="accountNonExpired != null" >
+        account_non_expired,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="userType != null" >
+        user_type,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="chineseName != null" >
+        #{chineseName,jdbcType=VARCHAR},
+      </if>
+      <if test="passWord != null" >
+        #{passWord,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="enabled != null" >
+        #{enabled,jdbcType=BIT},
+      </if>
+      <if test="credentialsNonExpired != null" >
+        #{credentialsNonExpired,jdbcType=BIT},
+      </if>
+      <if test="accountNonLocked != null" >
+        #{accountNonLocked,jdbcType=BIT},
+      </if>
+      <if test="accountNonExpired != null" >
+        #{accountNonExpired,jdbcType=BIT},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userType != null" >
+        #{userType,jdbcType=SMALLINT},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  
+  
+   <update id="updateSelective" parameterType="com.spr.web.system.entity.User" >
+     update c_user
+    <set >
+      <if test="sort != null" >
+        sort = #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="chineseName != null" >
+        chinese_name = #{chineseName,jdbcType=VARCHAR},
+      </if>
+      <if test="passWord != null" >
+        pass_word = #{passWord,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="enabled != null" >
+        enabled = #{enabled,jdbcType=BIT},
+      </if>
+      <if test="credentialsNonExpired != null" >
+        credentials_non_expired = #{credentialsNonExpired,jdbcType=BIT},
+      </if>
+      <if test="accountNonLocked != null" >
+        account_non_locked = #{accountNonLocked,jdbcType=BIT},
+      </if>
+      <if test="accountNonExpired != null" >
+        account_non_expired = #{accountNonExpired,jdbcType=BIT},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userType != null" >
+        user_type = #{userType,jdbcType=SMALLINT},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="update" parameterType="com.spr.web.system.entity.User" >
+    update c_user
+    set
+      user_name = #{userName,jdbcType=VARCHAR},
+      chinese_name = #{chineseName,jdbcType=VARCHAR},
+      pass_word = #{passWord,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR},
+      enabled = #{enabled,jdbcType=BIT},
+      credentials_non_expired = #{credentialsNonExpired,jdbcType=BIT},
+      account_non_locked = #{accountNonLocked,jdbcType=BIT},
+      account_non_expired = #{accountNonExpired,jdbcType=BIT},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      user_type = #{userType,jdbcType=SMALLINT},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  
+  
+  
+  <insert id="bathInsertUserAndRole" parameterType="hashmap">
+ 	INSERT IGNORE  INTO c_user_role(user_id,role_id) VALUES		
+	<foreach collection="roleIds" item="rid" index="index" separator=",">
+	  (#{userId},#{rid})
+	</foreach>
+  
+   </insert>
+   
+   
+  <delete id="deleteUserAndRoleRelation" >
+    DELETE FROM c_user_role WHERE user_id=#{userId} AND role_id in
+    <foreach collection="roleIds" item="rid" open="(" close=")" separator=",">
+      #{rid}
+    </foreach>
+  </delete>
+  
+  <delete id="deleteUserAndRoleByUserId" parameterType="java.lang.String">
+    DELETE FROM c_user_role WHERE user_id=#{userId}  
+  </delete>
+  
+  
+  
+  <update id="changePassword" parameterType="hashmap">
+  	UPDATE c_user SET pass_word=#{pwd} WHERE id=#{id}
+  </update>
+  
+
+
+  
+</mapper>

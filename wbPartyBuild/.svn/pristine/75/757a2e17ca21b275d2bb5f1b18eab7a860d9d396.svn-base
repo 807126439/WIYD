@@ -1,0 +1,369 @@
+package com.wb.web.system.service.impl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.wb.core.common.bean.Page;
+import com.wb.core.common.dto.AjaxJson;
+import com.wb.core.common.exception.MyException;
+import com.wb.core.common.service.BaseService;
+import com.wb.core.common.utils.Assert;
+import com.wb.web.system.dao.IDepartmentDao;
+import com.wb.web.system.dto.department.DepartTreeDTO;
+import com.wb.web.system.dto.department.DepartmentDTO;
+import com.wb.web.system.dto.department.DepartmentDTO2;
+import com.wb.web.system.dto.department.DepartmentQueryDTO;
+import com.wb.web.system.dto.department.JobDepartRelationDTO;
+import com.wb.web.system.entity.Department;
+import com.wb.web.system.entity.JobDepartRelation;
+import com.wb.web.system.service.IDepartmentService;
+import com.wb.web.system.service.IJobDepartRelationService;
+
+@Service("departmentService")
+@Transactional
+public class DepartmentServiceImpl extends BaseService implements IDepartmentService{
+	@Resource
+	private IDepartmentDao departmentDao;
+	@Resource
+	private IJobDepartRelationService jobDepartRelationService;
+	
+
+	/**
+	 * 分页查询对象
+	 * @param queryDTO
+	 * @return
+	 */
+	public Page<DepartmentDTO> searchDepartmentyByPage(DepartmentQueryDTO queryDTO){
+			
+		Page<Department> pageResult = this.departmentDao.searchDepartmentByPage(queryDTO);
+		
+		List<DepartmentDTO> dtoList = new ArrayList<DepartmentDTO>();
+		for (Department dt : pageResult.getList()) {
+			DepartmentDTO dto = new DepartmentDTO();
+			this.getMapper().map(dt, dto);
+			dtoList.add(dto);
+		}
+		
+		return new Page<DepartmentDTO>(pageResult.getCurrentPage(), pageResult.getPageSize(), dtoList, pageResult.getRecTotal());
+	}
+	
+	/**
+	 * 后台使用，简单内容加快速度
+	 * 根据id查询对象
+	 * @param id
+	 * @return
+	 */
+	public DepartmentDTO getDepartmentById(String id){
+		Assert.hasText(id, "id must not be null");
+		
+		Department dt = this.departmentDao.getById(id);
+		if(dt == null){
+			return null;
+		}
+		DepartmentDTO dto = new DepartmentDTO();
+		this.getMapper().map(dt, dto);
+		
+		if(dt.getParent()!=null){
+			dto.setParentName(dt.getParent().getDepartName());
+		}
+		
+		return dto;
+	}
+	
+	/**
+	 * 前台使用，查找所有子内容并显示
+	 * 根据id查询对象
+	 * @param id
+	 * @return
+	 */
+	public DepartmentDTO2 getDepartmentById2(String id){
+		Assert.hasText(id, "id must not be null");
+		
+		Department dt = this.departmentDao.getById(id);
+		if(dt!=null){
+			DepartmentDTO2 dto = new DepartmentDTO2();
+			dto=this.translate(dt);
+			//this.getMapper().map(dt, dto);
+			
+			if(dt.getParent()!=null){
+				dto.setParentName(dt.getParent().getDepartName());
+			}
+			return dto;
+		}
+		return null;
+	}
+	/**
+	 * 将Dt转换为DTO
+	 */
+	public DepartmentDTO2 translate(Department dt){
+		DepartmentDTO2 dto = new DepartmentDTO2();
+		dto.setChildren(new ArrayList<DepartmentDTO2>());
+		dto.setId(dt.getId());
+		dto.setDepartName(dt.getDepartName());
+		dto.setOrgCode(dt.getOrgCode());
+		dto.setSortNum(dt.getSortNum());
+		dto.setDescription(dt.getDescription());
+		//转换relations
+		if(null!=dt.getRelations()){
+			Set<JobDepartRelation> relations=dt.getRelations();
+			List<JobDepartRelationDTO> dtorelations=new ArrayList<JobDepartRelationDTO>();
+			for(JobDepartRelation jrdt:relations){
+				JobDepartRelationDTO jrdto=new JobDepartRelationDTO();
+				jrdto.setSortNum(jrdt.getSortNum());
+				jrdto.setJobName(jrdt.getJobDuty().getJobName());
+				jrdto.setUserName(jrdt.getUser().getUserName());
+				jrdto.setStatus(jrdt.getStatus());
+				dtorelations.add(jrdto);
+			}
+			Collections.sort(dtorelations, new Comparator<JobDepartRelationDTO>(){
+				
+				public int compare(JobDepartRelationDTO o1, JobDepartRelationDTO o2) {
+					return o1.getSortNum()-o2.getSortNum();
+				}
+			});
+			dto.setRelations(dtorelations);
+		}
+		//将DT的子部门转换为并放入dto
+		if(null!=dt.getChildren()){
+			DepartmentDTO2 cdto = new DepartmentDTO2();
+			for(Department cdt:dt.getChildren()){
+				cdto=this.translate(cdt);
+				dto.getChildren().add(cdto);
+			}
+		}
+		if(dt.getParent()!=null){
+			dto.setParentName(dt.getParent().getDepartName());
+		}
+		
+		return dto;
+	}
+	/**
+	 * 添加部门
+	 * @param dto
+	 */
+	public String addDepartment(DepartmentDTO dto){
+		Assert.hasText(dto.getDepartName(), "部门名称不能为空！");
+		Assert.hasText(dto.getOrgCode(), "部门代码不能为空！");
+		
+		
+		Short level = 0;
+		Department parent = null;
+		if(!StringUtils.isBlank(dto.getParentId())){
+			parent = this.departmentDao.getById(dto.getParentId());
+			level = (short) (parent.getLevel() + 1);
+		}
+		
+		Department dt = new Department(
+							dto.getDepartName(), 
+							dto.getOrgCode(), 
+							dto.getDescription(),
+							dto.getOrgTypeId(), 
+							level, 
+							dto.getSortNum(), 
+							parent, 
+							getNowUser().getUsername());
+		
+		if(parent!=null){
+			dt.setIsMain((parent.getIsMain()==null)?false:parent.getIsMain());
+			dt.setOrgTypeId(parent.getOrgTypeId());
+		}else if(null!=dto.getIsMain()){
+			dt.setIsMain(dto.getIsMain());
+			dt.setOrgTypeId(dto.getOrgTypeId());
+		}else{
+			dt.setOrgTypeId(dto.getOrgTypeId());
+			dt.setIsMain(false);
+		}
+				
+		
+		this.departmentDao.save(dt);
+		
+		return dt.getId();
+	}
+	
+	
+	/**
+	 * 修改部门
+	 * @param dto
+	 */
+	public void updateDepartment(DepartmentDTO dto){
+		Assert.hasText(dto.getId(), "id must not be null");
+		Assert.hasText(dto.getDepartName(), "部门名称不能为空！");
+		Assert.hasText(dto.getOrgCode(), "部门代码不能为空！");
+		
+		Department dt = this.departmentDao.getById(dto.getId());
+		
+		 dt.update(
+				dto.getDepartName(), 
+				dto.getOrgCode(), 
+				dto.getDescription(),
+				dto.getOrgTypeId(), 
+				dto.getSortNum(), 
+				getNowUser().getUsername());
+		//判断是否一级部门且是否有修改主部门设置，有则递归修改子节点设置同步父节点
+		 if(null==dt.getParent()&&(dto.getIsMain()!=dt.getIsMain())){
+			 synchronizeIsMain(dt,dto.getIsMain());
+		 }
+		 
+		this.departmentDao.update(dt);
+		
+	}
+	
+	
+	//递归同步子部门的主部门属性
+	public void synchronizeIsMain(Department dt,Boolean isMain){
+		dt.setIsMain(isMain);
+		this.departmentDao.update(dt);
+		for(Department o:dt.getChildren()){
+			synchronizeIsMain(o,isMain);
+		 }
+	}
+	
+	
+	/**
+	 * 移动部门
+	 * @param departId
+	 * @param parId
+	 */
+	public void updateMoveDepartment(String departId,String parId){
+		Assert.hasText(departId, "departId must not be null");
+		Assert.hasText(parId, "parId must not be null");
+		
+		Department dt = this.departmentDao.getById(departId);
+		Department parent = this.departmentDao.getById(parId);
+		
+		if(dt!=null && parent!=null){
+			
+			if(!dt.getId().equals(parent.getId())){
+				
+				if(dt.getParent()!=null){
+					
+					if(!dt.getParent().getId().equals(parent.getId())){
+						dt.setParent(parent);
+						dt.setLevel((short) (parent.getLevel() + 1));
+					}
+										
+				}else{
+					dt.setParent(parent);
+					dt.setLevel((short) (parent.getLevel() + 1));
+				}
+				
+			}else{
+				throw new MyException("不能选择移动对象为移动位置！");
+			}
+			
+			
+			this.departmentDao.update(dt);
+		}
+		
+		
+		
+	}
+	
+	
+	/**
+	 * 删除部门
+	 * @param ids
+	 * @return
+	 */
+	public AjaxJson deleteDepartment(String[] ids){
+		List<String> successIds = new ArrayList<String>();
+		
+		if(ids!=null && ids.length>0){
+			for (int i = 0; i < ids.length; i++) {
+				Department dt = this.departmentDao.getById(ids[i]);
+				if(dt!=null){
+					successIds.add(dt.getId());
+					this.departmentDao.delete(dt);					
+				}
+			}			
+			
+					
+			return new AjaxJson("删除成功！",AjaxJson.success,successIds);			
+			
+		
+		}else{
+			return new AjaxJson("操作记录不能为空!",AjaxJson.error);	
+		}
+	
+		
+	}
+	
+	
+	
+	public List<DepartTreeDTO> searchDepartmentZtree(DepartmentQueryDTO queryDTO){
+		List<Department> depList = this.departmentDao.searchTreeByCondition(queryDTO);
+		List<DepartTreeDTO> dtoList = new ArrayList<DepartTreeDTO>();
+		
+		for (int i = 0; i < depList.size(); i++) {
+			Department dt = depList.get(i);
+			DepartTreeDTO dto = new DepartTreeDTO(
+					dt.getId().toString(),
+					dt.getDepartName(),
+					dt.getChildren().size()>0, 
+					dt.getParent() == null? null:dt.getParent().getId().toString(),
+					queryDTO.getLevel()== null ? 0 :queryDTO.getLevel());
+		
+			dtoList.add(dto);
+					
+		}
+		
+				
+		return dtoList;
+	
+	}
+	/**
+	 * 读取所有主部门信息生成Ztree需要的节点字符串，例：{ id:2, pId:0, name:"随意勾选 2", checked:true, open:true},
+	 * 
+	 */
+	@Override
+	public String getZtreeNodesByContentId(String[] seeOrgIds) {
+		List<Department> wholeDep=this.departmentDao.getAllMainDepartment();
+		String nodes=null;
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < wholeDep.size(); i++) {
+			Department curr = wholeDep.get(i);
+			sb.append("{ id:\""+curr.getId()+"\"");
+			if(curr.getParent() == null){
+				sb.append(",pId:0");
+			}else{
+				sb.append(",pId:\""+curr.getParent().getId()+"\"");
+			}
+			sb.append(",name:\""+curr.getDepartName()+"\"");
+			if(null!=seeOrgIds){
+				for(String seeOrgId:seeOrgIds){
+					if(seeOrgId.equals(curr.getId())){
+						sb.append(",checked:true");
+					}
+				}
+			}
+			sb.append(", open:true},");
+		}
+		
+		if(sb.length()>1){
+			sb.deleteCharAt(sb.length()-1);	
+		}
+		sb.append("]");
+	
+		return sb.toString();
+	}
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}

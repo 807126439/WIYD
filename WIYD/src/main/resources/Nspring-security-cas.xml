@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+   xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 	                 
+                        http://www.springframework.org/schema/security 
+                        http://www.springframework.org/schema/security/spring-security-3.2.xsd"> 
+
+
+
+    <security:http pattern="/login.jsp" security="none"/>
+    <security:http pattern="/goLogin.jsp" security="none"/>  
+    <security:http pattern="/plug-in/**" security="none"/>
+    <security:http pattern="/Kaptcha.jpg/**" security="none"/>
+
+	       
+    <security:http access-denied-page="/page/common/error/accessDenied.jsp" entry-point-ref="casAuthEntryPoint" auto-config="true">
+    	<security:logout logout-url="/j_spring_security_logout" logout-success-url="http://19.104.9.30:8080/cas/logout" invalidate-session="true" delete-cookies="SPRING_SECURITY_REMEMBER_ME_COOKIE" />
+    	<security:session-management  session-authentication-strategy-ref="concurrentSessionControlStrategy" ></security:session-management>
+        <security:custom-filter ref="casAuthenticationFilter" position="CAS_FILTER"/>
+       	<security:custom-filter ref="myFilterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR"/>
+       	<security:custom-filter ref="concurrentSessionFilter"   position="CONCURRENT_SESSION_FILTER"/>
+       	<security:custom-filter ref="singleLogoutFilter" before="CAS_FILTER" />
+    </security:http>
+	
+    <!-- cas begin -->
+    <bean id="casAuthEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
+    	<property name="loginUrl" value="http://19.104.9.30:8080/cas/login" />
+    	<property name="serviceProperties" ref="casService" />
+    </bean>
+    
+    
+	<bean id="casAuthenticationFilter" class="com.wb.core.spring.security.filter.MyCasAuthenticationFilter">
+	  <property name="filterProcessesUrl" value="/center_check"></property>
+	  <property name="authenticationManager" ref="authenticationManager"/>
+	  <!--
+	  <property name="sessionAuthenticationStrategy" ref="concurrentSessionControlStrategy"/>
+	  -->
+	  <property name="authenticationSuccessHandler" ref="saveAuthenticationSuccessHandler"></property>
+	  <property name="authenticationFailureHandler" ref="authenticationFailureHandler"></property>	
+	</bean>
+	
+	<security:authentication-manager alias="authenticationManager">
+	   <security:authentication-provider ref="casAuthenticationProvider"/>
+	</security:authentication-manager>
+	
+	<bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+	  <property name="ticketValidator" ref="casTicketValidator"/>
+	  <property name="serviceProperties" ref="casService"/>
+	  <property name="key" value="jbcp-pets-dogstore-cas"/>
+	  <property name="authenticationUserDetailsService" ref="myUserDetailsService"/>
+	 
+	</bean>
+	
+	
+	<bean id="casService" class="org.springframework.security.cas.ServiceProperties">
+    	<property name="service" value="http://localhost:8080/wbMonitor/center_check" />
+    </bean>
+	
+	<bean id="casTicketValidator" class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+	  <constructor-arg value="http://19.104.9.30:8080/cas"/>
+	  <property name="encoding" value="utf-8"/>
+	</bean>
+	
+	
+
+	<bean id="myUserDetailsService" class="com.wb.core.spring.security.service.CasUserDetailsServiceImpl">
+	</bean>
+	
+    <bean id="myFilterSecurityInterceptor" class="com.wb.core.spring.security.service.MyFilterSecurityInterceptorImpl">
+	 	<property name="authenticationManager" ref="authenticationManager"></property>
+	 	<property name="accessDecisionManager" ref="myAccessDecisionManager"></property>
+	 	<property name="securityMetadataSource" ref="myInvocationSecurityMetadataSource"></property> 
+	 	
+	 </bean>
+
+	
+	<bean id="myAccessDecisionManager" class="com.wb.core.spring.security.service.MyAccessDecisionManagerImpl"></bean>
+	
+	
+	<bean id="myInvocationSecurityMetadataSource" class="com.wb.core.spring.security.service.MyInvocationSecurityMetadataSourceImpl" init-method="loadResourceDefine">
+	</bean>
+
+	
+	<!-- 配置默认登录失败页面 -->
+    <bean name="authenticationFailureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+    	<property name="defaultFailureUrl" value="/cas"></property>   
+    </bean>
+    
+	
+	 <!-- 配置登录成功后转入页面(for cas) -->
+    <bean name="saveAuthenticationSuccessHandler" class="com.wb.core.spring.security.handler.MySavedRequestAwareAuthenticationSuccessHandler">
+    </bean>
+	
+	
+	  <!-- 配置加密策略 -->
+	<bean id="shaPasswordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+		<!-- 加密方式 SHA-256 -->
+		<constructor-arg value="256" />
+	</bean>
+    
+    <!-- 配置密码的盐值 -->
+	<bean id="saltSource" class="org.springframework.security.authentication.dao.ReflectionSaltSource">
+		<!-- 以用户名作为加密盐值 -->
+		<property name="userPropertyToUse" value="username"></property>
+	</bean>
+
+	<!-- SESSION并发配置 -->
+	<bean id="concurrentSessionControlStrategy" class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+		<constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+		<property name="maximumSessions" value="2" />
+		<property name="exceptionIfMaximumExceeded" value="false" />	
+	</bean>
+	
+	<!-- SESSION并发处理 -->
+	<bean id="concurrentSessionFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+		<property name="sessionRegistry" ref="sessionRegistry" />
+		<property name="expiredUrl" value="/sessionError.jsp" />
+	    <property name="logoutHandlers">
+			<list>
+				<ref bean="logoutHandler" />
+			</list>
+		</property>
+	</bean>
+
+   
+	<bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+
+
+     <!-- 注销监听器  -->
+	<bean id="logoutHandler" class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler">
+   		<property name="invalidateHttpSession" value="true">  </property>
+	</bean>
+
+
+
+	<bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter" >
+	
+	</bean>
+
+</beans>

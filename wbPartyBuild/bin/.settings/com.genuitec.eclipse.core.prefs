@@ -1,0 +1,3 @@
+eclipse.preferences.version=1
+validator.Checked=src/main/webapp/page/common/script/mybottom.jsp,src/main/webapp/page/common/script/mytop.jsp,src/main/webapp/page/common/script/operbuttom.jsp,src/main/webapp/page/common/script/allbuttom.jsp,src/main/webapp/page/study/studyTask/common/editItem.jsp,src/main/webapp/page/study/studyTask/backup/common/editItem.jsp,src/main/webapp/plug-in/h-ui/lib/ueditor/config.json
+validator.Unchecked=

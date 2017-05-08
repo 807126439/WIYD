@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spr.web.system.dao.ISysLogsDao">
+
+  <resultMap id="BaseResultMap" type="com.spr.web.system.entity.SysLogs">
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="THREAD" jdbcType="VARCHAR" property="thread" />
+    <result column="CLASS_NAME" jdbcType="VARCHAR" property="className" />
+    <result column="METHOD" jdbcType="VARCHAR" property="method" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="LOGLEVEL" jdbcType="VARCHAR" property="loglevel" />
+    <result column="MSG" jdbcType="VARCHAR" property="msg" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    ID, THREAD, CLASS_NAME, METHOD, CREATE_TIME, LOGLEVEL, MSG
+  </sql>
+
+  <select id="getById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_logs
+    where ID = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="countByCondition" parameterType="map" resultType="long">
+    select count(*) from sys_logs
+   <include refid="select_condition" />
+  </select>
+
+
+  <sql id="select_condition">
+   	<where>	   		 		
+   		<if test="startTime!=null">
+   			 DATEDIFF(CREATE_TIME, #{startTime})>0
+   		</if>
+   		<if test="endTime!=null">
+   			AND  DATEDIFF(CREATE_TIME, #{endTime})&lt;0
+   		</if>
+   	
+   	</where>  
+  </sql>
+
+  <select id="selectListByCondition" parameterType="map" resultType="com.spr.web.system.dto.log.SysLogsDTO">
+    select 
+      ID AS id,
+      THREAD AS thread,
+      CLASS_NAME AS className,
+      METHOD AS method,
+      CREATE_TIME AS createTime,
+      LOGLEVEL AS loglevel,
+      MSG AS msg
+    from sys_logs
+	<include refid="select_condition" />
+    <if test="sidx!=null and sord!=null">
+      ORDER BY ${sidx} ${sord}
+    </if>
+    <if test="startQuery!=null and pageSize!=null">
+      LIMIT #{startQuery},#{pageSize}  
+    </if>
+  </select>
+
+  <select id="getDetailById" parameterType="java.lang.Long" resultType="com.spr.web.system.dto.log.SysLogsDTO">
+    select 
+      ID AS id,
+      THREAD AS thread,
+      CLASS_NAME AS className,
+      METHOD AS method,
+      CREATE_TIME AS createTime,
+      LOGLEVEL AS loglevel,
+      MSG AS msg
+    from sys_logs
+
+    where ID = #{id,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.Long">
+    delete from sys_logs
+    where ID = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="com.spr.web.system.entity.SysLogs" useGeneratedKeys="true">
+    insert into sys_logs (THREAD, CLASS_NAME, METHOD, 
+      CREATE_TIME, LOGLEVEL, MSG
+      )
+    values (#{thread,jdbcType=VARCHAR}, #{className,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{loglevel,jdbcType=VARCHAR}, #{msg,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="com.spr.web.system.entity.SysLogs" useGeneratedKeys="true">
+    insert into sys_logs
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="thread != null">
+        THREAD,
+      </if>
+      <if test="className != null">
+        CLASS_NAME,
+      </if>
+      <if test="method != null">
+        METHOD,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="loglevel != null">
+        LOGLEVEL,
+      </if>
+      <if test="msg != null">
+        MSG,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="thread != null">
+        #{thread,jdbcType=VARCHAR},
+      </if>
+      <if test="className != null">
+        #{className,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null">
+        #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="loglevel != null">
+        #{loglevel,jdbcType=VARCHAR},
+      </if>
+      <if test="msg != null">
+        #{msg,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateSelective" parameterType="com.spr.web.system.entity.SysLogs">
+    update sys_logs
+    <set>
+      <if test="thread != null">
+        THREAD = #{thread,jdbcType=VARCHAR},
+      </if>
+      <if test="className != null">
+        CLASS_NAME = #{className,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null">
+        METHOD = #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="loglevel != null">
+        LOGLEVEL = #{loglevel,jdbcType=VARCHAR},
+      </if>
+      <if test="msg != null">
+        MSG = #{msg,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="update" parameterType="com.spr.web.system.entity.SysLogs">
+    update sys_logs
+    set THREAD = #{thread,jdbcType=VARCHAR},
+      CLASS_NAME = #{className,jdbcType=VARCHAR},
+      METHOD = #{method,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      LOGLEVEL = #{loglevel,jdbcType=VARCHAR},
+      MSG = #{msg,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

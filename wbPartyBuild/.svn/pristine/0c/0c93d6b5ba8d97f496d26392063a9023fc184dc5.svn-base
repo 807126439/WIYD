@@ -1,0 +1,151 @@
+package com.wb.web.portals.dto.content;
+
+import java.util.Date;
+
+import com.wb.web.portals.entity.Content;
+
+public class ContentDTO {
+	private Long ctId;
+	private Integer sortNum;
+	private String titlePrefix; 
+	private String title;		//标题
+	private String pattern;		//缩略图
+	private String source;		//来源
+	private String author;		//作者
+	private Date createTime;
+	private String content;		//内容
+	private Short indexFlag;
+	private Long columnId;		//栏目id
+	private String columnName;  //栏目标题
+	private Long baseFileId;
+	private Short typeId;
+	private String viewPath;	//文件预览地址
+	private Long activityId;	//对应的活动Id
+	private String seeOrgId;      //可以查看的部门id（多个部门以逗号(英文)隔开）
+	
+	private Short appStatus;
+	private Long	sort;		//用于页面序号栏排序
+	
+	
+	public Long getCtId() {
+		return ctId;
+	}
+	public void setCtId(Long ctId) {
+		this.ctId = ctId;
+	}
+	public Integer getSortNum() {
+		return sortNum;
+	}
+	public void setSortNum(Integer sortNum) {
+		this.sortNum = sortNum;
+	}
+
+	public String getTitlePrefix() {
+		return titlePrefix;
+	}
+	public void setTitlePrefix(String titlePrefix) {
+		this.titlePrefix = titlePrefix;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getPattern() {
+		return pattern;
+	}
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String source) {
+		this.source = source;
+	}
+	public String getAuthor() {
+		return author;
+	}
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+	public Date getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public Short getIndexFlag() {
+		return indexFlag == null ? Content.NOT_INDEX_FLAG : indexFlag;
+	}
+	public void setIndexFlag(Short indexFlag) {
+		this.indexFlag = indexFlag;
+	}
+	public Long getColumnId() {
+		return columnId;
+	}
+	public void setColumnId(Long columnId) {
+		this.columnId = columnId;
+	}
+	public String getColumnName() {
+		return columnName;
+	}
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
+	}
+
+
+	public Long getBaseFileId() {
+		return baseFileId;
+	}
+	public void setBaseFileId(Long baseFileId) {
+		this.baseFileId = baseFileId;
+	}
+	public Short getTypeId() {
+		return typeId;
+	}
+	public void setTypeId(Short typeId) {
+		this.typeId = typeId;
+	}
+	public String getViewPath() {
+		return viewPath;
+	}
+	public void setViewPath(String viewPath) {
+		this.viewPath = viewPath;
+	}
+	public Long getActivityId() {
+		return activityId;
+	}
+	public void setActivityId(Long activityId) {
+		this.activityId = activityId;
+	}
+	public String getSeeOrgId() {
+		return seeOrgId;
+	}
+	public void setSeeOrgId(String seeOrgId) {
+		this.seeOrgId = seeOrgId;
+	}
+	public Short getAppStatus() {
+		return appStatus;
+	}
+	public void setAppStatus(Short appStatus) {
+		this.appStatus = appStatus;
+	}
+	public Long getSort() {
+		return sort;
+	}
+	public void setSort(Long sort) {
+		this.sort = sort;
+	}
+	
+	
+	
+	
+}

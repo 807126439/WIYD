@@ -1,0 +1,145 @@
+/*.sidemenu{
+  float: left;
+  width: 248px;
+}
+.sidemenu-header{
+  height: 50px;
+  padding: 59px 0px 59px 42px;
+  background: url('../../image/activity.png') no-repeat;
+}
+.sidemenu-uppercase,.sidemenu-headertitle{
+  float: left;
+  height: 50px;
+  color: #FFFFFF;
+}
+.sidemenu-headertitle{
+  max-width: 170px;
+text-align: left;
+}
+.sidemenu-uppercase{
+  font-size: 44px;
+  line-height: 50px;
+  margin-right: 6px;
+}
+.sm-ht_zh{
+  font-size:24px;
+  line-height: 34px;
+}
+.sm-ht_en{
+  font-size: 12px;
+  line-height: 12px;
+  overflow: visible;
+}
+.icon_arrowhead{
+  float: right;
+  margin-top: 76px;
+  margin-right: 10px;
+}
+.icon_arrowhead:before{
+  content: " ";
+  display: inline-block;
+  height: 13px;
+  width: 13px;
+  background: url('../../image/icon_arrowhead.png') no-repeat;
+}
+.sidemenu-list{
+  background:#E6E6E6;
+}
+.sidemenu-item a{
+  display: inline-block;
+  width: 100%;
+  color: #5D5D5D;
+  font-size: 16px;
+  line-height: 40px;
+  text-indent: 40px;
+}
+.sidemenu-list .active{
+  background:#9C9C9C;
+}
+.sidemenu-list .active a{
+  color: #FFFFFF;
+}
+.sidemenu-list .active a:after{
+  content: " ";
+  display: inline-block;
+  float: right;
+  margin-right: 10px;
+  height: 40px;
+  width: 18px;
+  background: url('../../image/icon_arrowhead.png') no-repeat;
+  background-position: 0px 12px;
+}
+.mod{
+  padding: 0px 12px 12px 12px;
+  margin:20px 0px 0px 258px;
+  background-color: #FFFFFF;
+}
+.mod-title{
+  border-bottom:2px solid #B30100;
+  padding:6px 6px;
+  font-size: 18px;
+  color: #010101;
+  font-weight: bold;
+}
+.mod-loc{
+  float: right;
+  line-height: 18px;
+  font-weight: normal;
+}
+.icon_mod{
+  margin-right: 6px;
+}
+.icon_mod:before{
+  content: " ";
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+  background: url('../../image/icon_mod.png') no-repeat;
+}
+.mod-content{
+  font-family: "SimSun","Microsoft YaHei";
+}
+#announcementlist{
+  padding: 4px;
+}
+.announcement{
+  position: relative;
+  line-height: 40px;
+}
+
+
+.announcement .span1 {color:#b40100; font-size:16px;}
+
+.announcement+.announcement{
+  border-top: 1px dotted #CCCCCC;
+}
+.announcementcontent{
+  display: block;
+  height: 40px;
+  overflow: hidden;
+  font-size: 14px;
+  vertical-align: middle;
+  text-overflow:ellipsis;
+white-space:nowrap; 
+overflow:hidden; 
+}
+.hasdate .announcementcontent{
+  margin-right: 74px;
+}
+.announcementcontent:hover{
+  color: #9B0B13;
+}
+.announcementaside{
+  float: right;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  text-align: right;
+  width: 74px;
+}
+.announcementaside .publicdate{
+  color:#5F5C5C;
+}
+.announcementcontent:before{
+  content: "·";
+}*/
+

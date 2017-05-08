@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spr.web.system.dao.IRoleDao">
+
+ <resultMap id="BaseResultMap" type="com.spr.web.system.entity.Role" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="sort" property="sort" jdbcType="BIGINT" />
+    <result column="role_text" property="roleText" jdbcType="VARCHAR" />
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+    <result column="role_memo" property="roleMemo" jdbcType="VARCHAR" />
+    <result column="flag" property="flag" jdbcType="SMALLINT" />
+    <result column="role_type" property="roleType" jdbcType="SMALLINT" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, sort, role_text, role_name, role_memo, flag,role_type,gmt_create, gmt_modified
+  </sql>
+  
+  <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from c_role
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  
+   <select id="selectByRoleCodes" resultMap="BaseResultMap"  >
+    select 
+    <include refid="Base_Column_List" />
+    from c_role
+    where role_name in
+    <foreach collection="roleCodes" item="rn" open="(" close=")" separator=",">
+      #{rn}
+    </foreach>
+  </select> 
+  
+  
+  <select id="selectAllRole"  resultType="com.spr.web.system.entity.Role">
+    select id,role_name as roleName,role_text AS roleText from c_role   
+  </select>
+  
+  
+  
+  <!-- 根据用户id查找角色 -->
+  <select id="selectRolesByUserId" parameterType="java.lang.String" resultType="com.spr.web.system.entity.Role">
+  	SELECT
+		r.id AS id,r.role_name as roleName,r.role_text AS roleText
+	FROM
+		c_role r
+	INNER JOIN c_user_role z ON r.id = z.role_id
+	WHERE
+		z.user_id = #{uid}
+	  
+  </select>
+  
+  
+  
+  
+  <select id="countByCondition" parameterType="hashmap" resultType="java.lang.Long">
+  	SELECT  COUNT(*) FROM c_role
+  	 <include refid="select_contition" />	
+  	 	
+  </select>
+  
+  <sql id="select_contition" >  	  
+  		<where> 
+  		  <if test="roleName!=null">
+  		   role_name = #{roleName}
+  		  </if> 
+  		  <if test="roleText!=null">
+  		   role_text = #{roleText}
+  		  </if> 	
+  		  <if test="roleType!=null">
+  		   role_type = #{roleType}
+  		  </if>   
+	  		
+  		</where>   
+  </sql>
+  
+  <select id="selectListByCondition" parameterType="hashmap" resultMap="BaseResultMap">
+  	   SELECT * FROM c_role 
+	   <include refid="select_contition" />		
+  	
+  	   <if test="sidx!=null and sord!=null">
+		 ORDER BY ${sidx} ${sord}
+	   </if>	
+  	   <if test="startQuery!=null and  pageSize!=null">
+  	  	LIMIT #{startQuery},#{pageSize} 	  	
+  	  </if>
+
+  </select>
+  
+  
+  
+  <select id="getUniqueByProperty" resultMap="BaseResultMap"  parameterType="CommonParam">
+  	 SELECT * FROM c_role WHERE ${filedName}=#{value} 
+  </select>
+  
+   <select id="checkUniqueIsExist" resultType="java.lang.Long" parameterType="CommonParam">
+  	 SELECT COUNT(*) FROM c_role WHERE ${filedName}=#{value} 
+  	 <if test="excludeId!=null">
+  	 	AND id  &lt;&gt; #{excludeId}
+  	 </if>
+  </select>
+  
+  
+  
+  
+  
+  <!-- 写操作 -->
+  <delete id="deleteById" parameterType="java.lang.String" >
+    delete from c_role
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+    
+  
+  <insert id="insert" parameterType="com.spr.web.system.entity.Role">
+    <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE" >
+    	SELECT REPLACE(UUID(),'-','')
+    </selectKey>
+  
+    insert into c_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="roleText != null" >
+        role_text,
+      </if>
+      <if test="roleName != null" >
+        role_name,
+      </if>
+      <if test="roleMemo != null" >
+        role_memo,
+      </if>
+      <if test="flag != null" >
+        flag,
+      </if>
+      <if test="roleType != null" >
+        role_type,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="roleText != null" >
+        #{roleText,jdbcType=VARCHAR},
+      </if>
+      <if test="roleName != null" >
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleMemo != null" >
+        #{roleMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null" >
+        #{flag,jdbcType=SMALLINT},
+      </if>
+      <if test="roleType != null" >
+        #{roleType,jdbcType=SMALLINT},
+      </if>
+       <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateSelective" parameterType="com.spr.web.system.entity.Role" >
+    update c_role
+    <set >
+      <if test="roleText != null" >
+        role_text = #{roleText,jdbcType=VARCHAR},
+      </if>
+      <if test="roleName != null" >
+        role_name = #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleMemo != null" >
+        role_memo = #{roleMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null" >
+        flag = #{flag,jdbcType=SMALLINT},
+      </if>
+       <if test="roleType != null" >
+        role_type = #{roleType,jdbcType=SMALLINT},
+      </if>
+       <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="update" parameterType="com.spr.web.system.entity.Role" >
+    update c_role
+    set
+      role_text = #{roleText,jdbcType=VARCHAR},
+      role_name = #{roleName,jdbcType=VARCHAR},
+      role_memo = #{roleMemo,jdbcType=VARCHAR},
+      flag = #{flag,jdbcType=SMALLINT},
+      role_type = #{roleType,jdbcType=SMALLINT},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+  
+  <insert id="bathInsertRoleAndAuth" parameterType="hashmap">
+  		INSERT INTO c_authority_role (role_id, auth_id)
+		VALUES
+		<foreach collection="authIds" item="aid" index="index" separator=",">
+		  (#{roleId},#{aid})
+		</foreach>
+  </insert>
+  
+  <delete id="deleteRoleAndAuthByRoleId" parameterType="java.lang.String">
+    DELETE FROM c_authority_role WHERE role_id=#{roleId}
+  
+  </delete>
+  
+  
+  
+  
+</mapper>

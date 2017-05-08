@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spr.web.system.dao.IAuthorityDao">
+
+ <resultMap id="BaseResultMap" type="com.spr.web.system.entity.Authority" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="sort" property="sort" jdbcType="BIGINT" />
+    <result column="auth_code" property="authCode" jdbcType="VARCHAR" />
+    <result column="auth_text" property="authText" jdbcType="VARCHAR" />
+    <result column="auth_order" property="authOrder" jdbcType="INTEGER" />
+    <result column="auth_type" property="authType" jdbcType="SMALLINT" />
+    <result column="resoureces_url" property="resourecesUrl" jdbcType="VARCHAR" />
+    <result column="flag" property="flag" jdbcType="SMALLINT" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, sort, auth_code, auth_text, auth_order, auth_type, resoureces_url, flag, icon, 
+    parent_id, gmt_create, gmt_modified
+  </sql>
+  
+  <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from c_authority
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <select id="countByCondition" resultType="java.lang.Long" parameterType="hashmap">
+  	SELECT  COUNT(*) FROM c_authority a LEFT JOIN c_authority p ON a.parent_id = p.id
+    <include refid="select_condition" />	
+      	 	
+  </select>
+  
+  
+ <sql id="select_condition">
+     
+ 	 <where>
+  	 	<if test="authName!=null">
+  	 		<bind name="authNameLike" value="'%' + _parameter.authName + '%'"/>
+  		  	a.auth_text LIKE #{authNameLike}
+        </if> 
+        <if test="authCode!=null">
+        	AND a.auth_code = #{authCode}
+        </if>
+        <if test="parentId!=null">         
+             AND a.parent_id = #{parentId}                 	
+        </if>
+        <if test="parAuthName!=null">    
+        	<choose>
+             <when test="parAuthName == '0'.toString()">
+              AND a.parent_id IS NULL
+             </when>
+             <otherwise>
+               AND p.auth_text = #{parAuthName}
+             </otherwise>           
+            </choose> 
+        </if>
+         <if test="authType!=null">
+        	AND a.auth_type = #{authType}
+        </if>
+        <if test="flag!=null">
+        	AND a.flag = #{flag}
+        </if>        
+	 
+  	 </where>	  	  
+  	
+ </sql>
+  
+
+  
+  <select id="selectListByCondition" parameterType="hashmap" resultType="AuthorityDTO">
+		 
+		SELECT
+			a.id AS id,
+			a.auth_code AS authCode,
+			a.auth_text AS authText,
+			a.resoureces_url AS resourecesUrl,
+			a.auth_type AS authType,
+			a.flag AS flag,
+			a.icon AS icon,
+			a.auth_order AS authOrder,
+			a.parent_id AS parentId,
+			p.auth_text AS parentName
+		FROM
+			c_authority a
+		LEFT JOIN c_authority p ON a.parent_id = p.id	
+		 <include refid="select_condition" />		
+		
+	  <if test="sidx!=null and sord!=null">
+		 ORDER BY ${sidx} ${sord}
+	  </if>	
+  	  <if test="startQuery!=null and  pageSize!=null">
+  	  	 LIMIT #{startQuery},#{pageSize}  	
+  	  </if>
+    
+  
+  </select>
+  
+  
+   <sql id="leftOutParent">
+  	  SELECT
+		a.id AS id,
+		a.auth_code AS authCode,
+		a.auth_text AS authText,
+		a.resoureces_url AS resourecesUrl,
+		a.auth_type AS authType,
+		a.flag AS flag,
+		a.icon AS icon,
+		a.auth_order AS authOrder,
+		a.parent_id AS parentId,
+		p.auth_text AS parentName
+	 FROM
+		c_authority a
+	 LEFT JOIN c_authority p ON a.parent_id = p.id
+  </sql>
+  
+  <select id="selectWithLeftParentById" parameterType="java.lang.String" resultType="AuthorityDTO">
+  	 <include refid="leftOutParent" />	
+  	 
+  	  WHERE a.id=#{id}  
+  </select>
+  
+  
+  
+   <select id="checkUniqueIsExist" resultType="java.lang.Long" parameterType="CommonParam">
+  	 SELECT COUNT(*) FROM c_authority WHERE ${filedName}=#{value} 
+  	 <if test="excludeId!=null">
+  	 	AND id  &lt;&gt; #{excludeId}
+  	 </if>
+  </select>
+  
+  
+  
+  
+	<select id="selectAuthByCondition" parameterType="hashmap" resultType="com.spr.web.system.entity.Authority">  		
+  		SELECT
+  		    a.id as id,
+			a.auth_code AS authCode,
+			a.auth_text AS authText,
+			a.resoureces_url AS resourecesUrl
+		FROM
+			c_authority a
+		INNER JOIN c_authority_role z ON a.id = z.auth_id
+		
+		<where>
+			<if test="rid!=null">
+				z.role_id=#{rid} 
+			</if>
+					
+			<if test="typelist != null">
+				AND a.auth_type IN
+				<foreach collection="typelist" index="index" item="type" open="(" separator="," close=")" >
+			 	#{type}		 
+				</foreach> 	
+			</if>								
+			
+			AND a.resoureces_url IS NOT NULL	
+		</where>	
+  
+  </select>
+  
+  <select id="selectAuthByCondition2" parameterType="hashmap" resultType="com.spr.web.system.entity.Authority">  		
+  	SELECT * FROM (	
+  		SELECT
+  		    DISTINCT a.id as id,			
+			a.auth_text AS authText,
+			a.auth_code AS authCode,
+			a.icon AS icon,
+			a.resoureces_url AS resourecesUrl,
+			a.parent_id as parentId,
+			a.auth_order 
+		FROM
+			c_authority a
+		INNER JOIN c_authority_role z ON a.id = z.auth_id
+	
+		<where>
+			<if test="roleIds!=null">
+			   z.role_id IN
+			   <foreach collection="roleIds" item="r" index="index" open="(" separator="," close=")">
+			    #{r}
+			   </foreach>	
+			</if>
+								
+			<choose>
+				<when test="parentId!=null">
+				    AND a.parent_id=#{parentId}
+				</when>
+				<otherwise>
+					 AND a.parent_id is null
+				</otherwise>
+			</choose>	
+											
+			<if test="typelist != null">
+				AND a.auth_type IN
+				<foreach collection="typelist" index="index" item="type" open="(" separator="," close=")" >
+			 	#{type}		 
+				</foreach> 	
+			</if>			
+			
+			
+			<if test="flag!=null">
+				AND a.flag=#{flag}			
+			</if>
+				
+		</where>	
+  		
+  		)t
+  		
+	ORDER BY t.auth_order ASC
+  	
+  
+   </select>
+  
+  
+  
+   <select id="selectAuthByCondition3" resultType="com.spr.web.system.entity.Authority">
+   	  SELECT
+  		    a.id as id,			
+			a.auth_text AS authText,
+			a.auth_type AS authType,
+			a.auth_order AS authOrder,
+			a.parent_id as parentId
+	  FROM
+			c_authority a
+		
+	   
+		<if test="_parameter!=null">
+		   INNER JOIN c_authority_role z ON a.id = z.auth_id
+		   WHERE z.role_id=#{roleId} 
+		</if>
+					
+   	  
+   	   ORDER BY a.auth_order ASC
+   	
+   </select>
+  
+    <select id="selectAuthByCondition4" resultType="com.spr.web.system.entity.Authority" parameterType="java.lang.String">
+   	  SELECT
+  		    id,			
+			auth_text AS authText,
+			auth_order AS authOrder,
+			parent_id AS parentId
+	  FROM
+			c_authority 
+		
+	   	<choose>
+			<when test="_parameter!=null"><!-- STRING类型的参数不能直接使用参数名进行判断，要使用_parameter -->
+			    WHERE parent_id=#{parentId}
+			</when>
+			<otherwise>
+				 WHERE parent_id is null
+			</otherwise>
+		</choose>	
+					
+   	  
+   	   ORDER BY auth_order ASC
+   	
+   </select>
+  
+   <select id="getAuthControlItem" parameterType="hashmap" resultType="java.lang.String">  		
+  		SELECT
+  		   a.auth_code
+		FROM
+			c_authority a
+		INNER JOIN c_authority_role z ON a.id = z.auth_id
+	
+		<where>
+			<if test="roleIds!=null">
+			    z.role_id IN
+			   <foreach collection="roleIds" item="r" index="index" open="(" separator="," close=")">
+			    #{r}
+			   </foreach>			
+			</if>
+				
+			<if test="flag!=null">
+				AND a.flag=#{flag}			
+			</if>	
+																	
+			<if test="typelist != null">
+				AND a.auth_type IN
+				<foreach collection="#{typelist}" index="index" item="type" open="(" close=")" >
+			 	#{item}		 
+				</foreach> 	
+			</if>			
+						
+		
+				
+		</where>	
+  		 	
+  
+   </select>
+  
+  
+  
+  
+  <!-- 写操作 -->
+  <delete id="deleteById" parameterType="java.lang.String" >
+    delete from c_authority
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  
+  <insert id="insert" parameterType="com.spr.web.system.entity.Authority">
+    <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE" >
+    	SELECT REPLACE(UUID(),'-','')
+    </selectKey>
+    
+     insert into c_authority
+     <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="authCode != null" >
+        auth_code,
+      </if>
+      <if test="authText != null" >
+        auth_text,
+      </if>
+      <if test="authOrder != null" >
+        auth_order,
+      </if>
+      <if test="authType != null" >
+        auth_type,
+      </if>
+      <if test="resourecesUrl != null" >
+        resoureces_url,
+      </if>
+      <if test="flag != null" >
+        flag,
+      </if>
+      <if test="icon != null" >
+        icon,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="authCode != null" >
+        #{authCode,jdbcType=VARCHAR},
+      </if>
+      <if test="authText != null" >
+        #{authText,jdbcType=VARCHAR},
+      </if>
+      <if test="authOrder != null" >
+        #{authOrder,jdbcType=INTEGER},
+      </if>
+      <if test="authType != null" >
+        #{authType,jdbcType=SMALLINT},
+      </if>
+      <if test="resourecesUrl != null" >
+        #{resourecesUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null" >
+        #{flag,jdbcType=SMALLINT},
+      </if>
+      <if test="icon != null" >
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  
+   <update id="updateSelective" parameterType="com.spr.web.system.entity.Authority" >
+    update c_authority
+    <set >
+      <if test="authCode != null" >
+        auth_code = #{authCode,jdbcType=VARCHAR},
+      </if>
+      <if test="authText != null" >
+        auth_text = #{authText,jdbcType=VARCHAR},
+      </if>
+      <if test="authOrder != null" >
+        auth_order = #{authOrder,jdbcType=INTEGER},
+      </if>
+      <if test="authType != null" >
+        auth_type = #{authType,jdbcType=SMALLINT},
+      </if>
+      <if test="resourecesUrl != null" >
+        resoureces_url = #{resourecesUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null" >
+        flag = #{flag,jdbcType=SMALLINT},
+      </if>
+      <if test="icon != null" >
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="update" parameterType="com.spr.web.system.entity.Authority" >
+    update c_authority
+    set
+      auth_code = #{authCode,jdbcType=VARCHAR},
+      auth_text = #{authText,jdbcType=VARCHAR},
+      auth_order = #{authOrder,jdbcType=INTEGER},
+      auth_type = #{authType,jdbcType=SMALLINT},
+      resoureces_url = #{resourecesUrl,jdbcType=VARCHAR},
+      flag = #{flag,jdbcType=SMALLINT},
+      icon = #{icon,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+ 
+</mapper>

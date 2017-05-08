@@ -1,0 +1,83 @@
+.contentwrapper{
+  color: #000000;
+  font-size: 16px;
+  padding: 12px;    
+  font-family: "Microsoft YaHei","SimSun";
+}
+.contenttitle{
+  font-size: 24px;
+  line-height: 1.4;
+  padding:12px 12px; 
+  text-align: center;
+}
+.contentlist{
+  margin:12px 0px;
+}
+.contentlist li{
+  border: 1px solid #CECECE;
+  position: relative;
+}
+.contentlist li+li{
+  margin-top: 12px;
+}
+.list-t{
+  width: 158px;
+  background: url('../../image/listtitlebg.png') repeat;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  text-align: center;
+}
+.d_2 .list-t{background: url('../../image/listtitlebg2.png') repeat;}
+.d_3 .list-t{background: url('../../image/listtitlebg3.png') repeat;}
+.d_4 .list-t{background: url('../../image/listtitlebg4.png') repeat;}
+.list-t:before{
+ content: " ";
+ width: 0px;
+ height: 100%;
+  display: inline-block;
+  vertical-align: middle;
+  visibility: hidden;
+}
+.list-t-wr{
+  display: inline-block;
+  vertical-align: middle;
+  color: #ffffff;
+  font-size: 14px;
+}
+.Belong{font-size: 20px;}
+.simwrapper{
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  height: 20px;
+  width: 12px;
+}
+.icon_sim{
+  position: absolute;
+  top: -50%;
+  left: 0;
+  height: 20px;
+  width: 12px;
+}
+.d_1 .icon_sim{background: url('../../image/sim1.png') no-repeat;}
+.d_2 .icon_sim{background: url('../../image/sim2.png') no-repeat;}
+.d_3 .icon_sim{background: url('../../image/sim3.png') no-repeat;}
+.d_4 .icon_sim{background: url('../../image/sim4.png') no-repeat;}
+.list-c{
+  margin-left:158px;
+  line-height: 1.5;
+}
+.linewr{padding: 6px 0px;}
+.line-left{
+  float: left;
+  width: 104px;
+  text-align: right;
+}
+.line-right{
+  margin-left:114px;
+}
+.undl{text-decoration: underline;}
+.brac:before{content: "("}
+.brac:after{content: ")"}

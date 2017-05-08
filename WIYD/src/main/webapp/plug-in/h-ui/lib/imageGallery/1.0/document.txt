@@ -1,0 +1,77 @@
+﻿制作人：zhangzicao
+一、DOM
+
+	缩略图列表使用<ul>,例
+	<ul>
+    <li>
+      <a href="javascript:void(0);"><img src="demo1.jpg" alt="" data-src="demo1.jpg" title="图片1"></a>
+    </li>
+    <li>
+      <a href="javascript:void(0);"><img src="demo2.jpg" alt="" data-src="demo2.jpg" title="图片2"></a>
+    </li>
+    <li>
+      <a href="javascript:void(0);"><img src="demo3.jpg" alt="" data-src="demo3.jpg" title="图片3"></a>
+    </li>
+  </ul>
+
+
+二、初始化
+
+	2.1导入jquey与本js
+
+	2.2初始化
+			
+		imageGallery(options),返回object对象，例：
+
+	      imageGallery({
+	        target:'#bigimg',
+	        list:'.picmidmid ul',
+	        title:'.bigimg-tt',
+	        prev:'.prearrow',
+	        next:'.nextarrow',
+	        count:'.picshow-count span',
+	        total:'.picshow-count i',
+	        leftSlide:'#leftSlide',
+	        rightSlide:'#rightSlide',
+	        slideBack:'#slideBack',
+	      });
+
+
+三、初始化配置解析  Options 
+
+  first   默认值0   第一个要展示的图片索引值
+  target   默认值''   大图<img>对象的selector
+  list   默认值''    缩略图列表<ul>对象的selector
+  title   默认值''   存放当前大图标题的selector
+  prev   默认值''   能触发前一张图片的selector
+  next   默认值''   能触发下一张图片的selector
+  count   默认值''   存放当前大图序号的selector
+  total   默认值''   存放当总图数的selector
+  leftSlide   默认值''   能触发缩略图列表向左滚动的selector
+  rightSlide   默认值''   能触发缩略图列表向右滚动的selector
+  slideBack   默认值''   能触发缩略图列表定位当前图片的selector
+  srcattr   默认值'data-src'   缩略图<img>上大图地址的存放属性
+  titleattr   默认值'title'   缩略图<img>上大图标题的存放属性
+  speed   默认值1    缩略图列表中心模式当前图片切换的动画速度
+  startToEnd   默认值true   是否开启第一张向前切换到最后一张的功能
+  endToStart   默认值true   是否开启最后一张向前切换到第一张的功能
+  listenKey   默认值true   是否开启键盘方向键的监听事件
+
+
+四、Methods 方法
+
+ 1、var controller=imageGallery(options),返回一个object对象
+ 		controller.method()
+
+ 2、使用方法
+
+  getCounts()   返回总图的个数
+  showNext()   显示下一张图片
+  showPrev()   显示上一张图片
+  showImage(index)   展示第index+1张图片
+  slideToImage(index,slideEnd)    滚动至第index+1张图片,slideEnd为滚动动画结束时触发的方法
+  leftSlide()   缩略图列表向左滑动
+  rightSlide()   缩略图列表向右滑动
+  slideBack()   在缩略图列表滚动并定位当前图片
+  destroy()    解除该组件的绑定
+

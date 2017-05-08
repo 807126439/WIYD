@@ -1,0 +1,18 @@
+.contribute-tt{text-align: center;padding:20px;color: #b40100;font-size: 20px;font-weight: bold;}
+.table-default{width: 100%;border-collapse:collapse;border:1px solid #d0d0d0;text-align: center;line-height:1.6;}
+.table-default td,.table-default th{font-size:16px;height: 40px;}
+.table-default td+td,.table-default th+th{border-left: 1px solid #fff;}
+.table-default tr+tr{border-top: 1px solid #fff;}
+.table-default thead th{background-color: #b40100;text-align: center;color: #fff;}
+.table-default .even td{background-color: #f0f0f0;}
+.table-default a:hover{color:#2a77c3;text-decoration:none; }
+tr.size-H{height: 88px;}
+
+.table1 thead th:first-child{width: 140px;}
+.table1 td{padding: 0px;height: 56px;}
+.table1 thead th:first-child+th{width: 420px;}
+.table1 thead th:first-child+th+th{width: 140px;}
+.table1>tr>td:first-child+td,.table1 tr td:first-child+td table{text-align: left;}
+.table1 a{font-weight: bold;color: #b40100;}
+.table-insert{border:0px;height: 100%;}
+.table-insert td{padding:4px;}

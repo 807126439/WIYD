@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="profiler.settings.instrument.empty.methods">true</entry>
+<entry key="ProfilerCPUSettings_profile_runnables">true</entry>
+<entry key="profiler.settings.n.profiled.threads.limit">32</entry>
+<entry key="ProfilerCPUSettings_filter_type">2</entry>
+<entry key="profiler.settings.obj.alloc.stack.sampling.depth">-1</entry>
+<entry key="profiler.settings.instrument.method.invoke">true</entry>
+<entry key="profiler.settings.instr.scheme">1</entry>
+<entry key="ProfilerMemorySettings_track_every">10</entry>
+<entry key="ProfilerMemorySettings_mode">4</entry>
+<entry key="ProfilerCPUSettings_root_classes">src.main.java.com.wb.core.common.bean.**
+src.main.java.com.wb.core.common.controller.**
+src.main.java.com.wb.core.common.dao.**
+src.main.java.com.wb.core.common.dto.**
+src.main.java.com.wb.core.common.entity.**
+src.main.java.com.wb.core.common.exception.**
+src.main.java.com.wb.core.common.service.**
+src.main.java.com.wb.core.common.utils.**
+src.main.java.com.wb.core.gobal.**
+src.main.java.com.wb.core.interceptors.**
+src.main.java.com.wb.core.listener.**
+src.main.java.com.wb.core.redis.**
+src.main.java.com.wb.core.resolver.view.**
+src.main.java.com.wb.core.spring.security.acess.intercept.**
+src.main.java.com.wb.core.spring.security.authentication.**
+src.main.java.com.wb.core.spring.security.filter.**
+src.main.java.com.wb.core.spring.security.gobal.**
+src.main.java.com.wb.core.spring.security.handler.**
+src.main.java.com.wb.core.spring.security.service.**
+src.main.java.com.wb.core.spring.security.user.**
+src.main.java.com.wb.core.spring.security.utils.**
+src.main.java.com.wb.core.tag.**
+src.main.java.com.wb.core.timer.**
+src.main.java.com.wb.core.utils.**
+src.main.java.com.wb.web.app.controller.**
+src.main.java.com.wb.web.base.controller.**
+src.main.java.com.wb.web.base.dao.**
+src.main.java.com.wb.web.base.dto.result.**
+src.main.java.com.wb.web.base.entity.**
+src.main.java.com.wb.web.base.service.**
+src.main.java.com.wb.web.party.controller.**
+src.main.java.com.wb.web.party.dao.**
+src.main.java.com.wb.web.party.dto.**
+src.main.java.com.wb.web.party.entity.**
+src.main.java.com.wb.web.party.service.**
+src.main.java.com.wb.web.portals.controller.**
+src.main.java.com.wb.web.portals.dao.**
+src.main.java.com.wb.web.portals.dto.accessRecord.**
+src.main.java.com.wb.web.portals.dto.activityRule.**
+src.main.java.com.wb.web.portals.dto.activityVote.**
+src.main.java.com.wb.web.portals.dto.ads.**
+src.main.java.com.wb.web.portals.dto.awardWinningWorks.**
+src.main.java.com.wb.web.portals.dto.awardsSetting.**
+src.main.java.com.wb.web.portals.dto.banChunk.**
+src.main.java.com.wb.web.portals.dto.column.**
+src.main.java.com.wb.web.portals.dto.comment.**
+src.main.java.com.wb.web.portals.dto.communication.**
+src.main.java.com.wb.web.portals.dto.content.**
+src.main.java.com.wb.web.portals.dto.feelingRecord.**
+src.main.java.com.wb.web.portals.dto.generalStat.**
+src.main.java.com.wb.web.portals.dto.manuscript.**
+src.main.java.com.wb.web.portals.dto.opinionfeedback.**
+src.main.java.com.wb.web.portals.dto.themeActivity.**
+src.main.java.com.wb.web.portals.entity.**
+src.main.java.com.wb.web.portals.service.**
+src.main.java.com.wb.web.study.controller.**
+src.main.java.com.wb.web.study.dao.**
+src.main.java.com.wb.web.study.dto.examPaper.**
+src.main.java.com.wb.web.study.dto.examScore.**
+src.main.java.com.wb.web.study.dto.studyData.**
+src.main.java.com.wb.web.study.dto.studyTask.**
+src.main.java.com.wb.web.study.dto.studycategory.**
+src.main.java.com.wb.web.study.dto.topic.**
+src.main.java.com.wb.web.study.entity.**
+src.main.java.com.wb.web.study.service.**
+src.main.java.com.wb.web.system.controller.**
+src.main.java.com.wb.web.system.dao.**
+src.main.java.com.wb.web.system.dto.EduDegree.**
+src.main.java.com.wb.web.system.dto.authority.**
+src.main.java.com.wb.web.system.dto.baseDict.**
+src.main.java.com.wb.web.system.dto.department.**
+src.main.java.com.wb.web.system.dto.group.**
+src.main.java.com.wb.web.system.dto.jobDuty.**
+src.main.java.com.wb.web.system.dto.log.**
+src.main.java.com.wb.web.system.dto.role.**
+src.main.java.com.wb.web.system.dto.user.**
+src.main.java.com.wb.web.system.dto.zone.**
+src.main.java.com.wb.web.system.entity.**
+src.main.java.com.wb.web.system.service.**
+src.main.java.com.wb.web.workflow.controller.**
+src.main.java.com.wb.web.workflow.dao.**
+src.main.java.com.wb.web.workflow.dto.attachment.**
+src.main.java.com.wb.web.workflow.dto.definition.**
+src.main.java.com.wb.web.workflow.dto.node.**
+src.main.java.com.wb.web.workflow.dto.task.**
+src.main.java.com.wb.web.workflow.entity.**
+src.main.java.com.wb.web.workflow.service.**
+src.test.java.test.**
+</entry>
+<entry key="ProfilerCPUSettings_filter_value">src.main.java.com.wb.core.common.bean.*,&#13;
+src.main.java.com.wb.core.common.controller.*,&#13;
+src.main.java.com.wb.core.common.dao.*,&#13;
+src.main.java.com.wb.core.common.dto.*,&#13;
+src.main.java.com.wb.core.common.entity.*,&#13;
+src.main.java.com.wb.core.common.exception.*,&#13;
+src.main.java.com.wb.core.common.service.*,&#13;
+src.main.java.com.wb.core.common.utils.*,&#13;
+src.main.java.com.wb.core.gobal.*,&#13;
+src.main.java.com.wb.core.interceptors.*,&#13;
+src.main.java.com.wb.core.listener.*,&#13;
+src.main.java.com.wb.core.redis.*,&#13;
+src.main.java.com.wb.core.resolver.view.*,&#13;
+src.main.java.com.wb.core.spring.security.acess.intercept.*,&#13;
+src.main.java.com.wb.core.spring.security.authentication.*,&#13;
+src.main.java.com.wb.core.spring.security.filter.*,&#13;
+src.main.java.com.wb.core.spring.security.gobal.*,&#13;
+src.main.java.com.wb.core.spring.security.handler.*,&#13;
+src.main.java.com.wb.core.spring.security.service.*,&#13;
+src.main.java.com.wb.core.spring.security.user.*,&#13;
+src.main.java.com.wb.core.spring.security.utils.*,&#13;
+src.main.java.com.wb.core.tag.*,&#13;
+src.main.java.com.wb.core.timer.*,&#13;
+src.main.java.com.wb.core.utils.*,&#13;
+src.main.java.com.wb.web.app.controller.*,&#13;
+src.main.java.com.wb.web.base.controller.*,&#13;
+src.main.java.com.wb.web.base.dao.*,&#13;
+src.main.java.com.wb.web.base.dto.result.*,&#13;
+src.main.java.com.wb.web.base.entity.*,&#13;
+src.main.java.com.wb.web.base.service.*,&#13;
+src.main.java.com.wb.web.party.controller.*,&#13;
+src.main.java.com.wb.web.party.dao.*,&#13;
+src.main.java.com.wb.web.party.dto.*,&#13;
+src.main.java.com.wb.web.party.entity.*,&#13;
+src.main.java.com.wb.web.party.service.*,&#13;
+src.main.java.com.wb.web.portals.controller.*,&#13;
+src.main.java.com.wb.web.portals.dao.*,&#13;
+src.main.java.com.wb.web.portals.dto.accessRecord.*,&#13;
+src.main.java.com.wb.web.portals.dto.activityRule.*,&#13;
+src.main.java.com.wb.web.portals.dto.activityVote.*,&#13;
+src.main.java.com.wb.web.portals.dto.ads.*,&#13;
+src.main.java.com.wb.web.portals.dto.awardWinningWorks.*,&#13;
+src.main.java.com.wb.web.portals.dto.awardsSetting.*,&#13;
+src.main.java.com.wb.web.portals.dto.banChunk.*,&#13;
+src.main.java.com.wb.web.portals.dto.column.*,&#13;
+src.main.java.com.wb.web.portals.dto.comment.*,&#13;
+src.main.java.com.wb.web.portals.dto.communication.*,&#13;
+src.main.java.com.wb.web.portals.dto.content.*,&#13;
+src.main.java.com.wb.web.portals.dto.feelingRecord.*,&#13;
+src.main.java.com.wb.web.portals.dto.generalStat.*,&#13;
+src.main.java.com.wb.web.portals.dto.manuscript.*,&#13;
+src.main.java.com.wb.web.portals.dto.opinionfeedback.*,&#13;
+src.main.java.com.wb.web.portals.dto.themeActivity.*,&#13;
+src.main.java.com.wb.web.portals.entity.*,&#13;
+src.main.java.com.wb.web.portals.service.*,&#13;
+src.main.java.com.wb.web.study.controller.*,&#13;
+src.main.java.com.wb.web.study.dao.*,&#13;
+src.main.java.com.wb.web.study.dto.examPaper.*,&#13;
+src.main.java.com.wb.web.study.dto.examScore.*,&#13;
+src.main.java.com.wb.web.study.dto.studyData.*,&#13;
+src.main.java.com.wb.web.study.dto.studyTask.*,&#13;
+src.main.java.com.wb.web.study.dto.studycategory.*,&#13;
+src.main.java.com.wb.web.study.dto.topic.*,&#13;
+src.main.java.com.wb.web.study.entity.*,&#13;
+src.main.java.com.wb.web.study.service.*,&#13;
+src.main.java.com.wb.web.system.controller.*,&#13;
+src.main.java.com.wb.web.system.dao.*,&#13;
+src.main.java.com.wb.web.system.dto.EduDegree.*,&#13;
+src.main.java.com.wb.web.system.dto.authority.*,&#13;
+src.main.java.com.wb.web.system.dto.baseDict.*,&#13;
+src.main.java.com.wb.web.system.dto.department.*,&#13;
+src.main.java.com.wb.web.system.dto.group.*,&#13;
+src.main.java.com.wb.web.system.dto.jobDuty.*,&#13;
+src.main.java.com.wb.web.system.dto.log.*,&#13;
+src.main.java.com.wb.web.system.dto.role.*,&#13;
+src.main.java.com.wb.web.system.dto.user.*,&#13;
+src.main.java.com.wb.web.system.dto.zone.*,&#13;
+src.main.java.com.wb.web.system.entity.*,&#13;
+src.main.java.com.wb.web.system.service.*,&#13;
+src.main.java.com.wb.web.workflow.controller.*,&#13;
+src.main.java.com.wb.web.workflow.dao.*,&#13;
+src.main.java.com.wb.web.workflow.dto.attachment.*,&#13;
+src.main.java.com.wb.web.workflow.dto.definition.*,&#13;
+src.main.java.com.wb.web.workflow.dto.node.*,&#13;
+src.main.java.com.wb.web.workflow.dto.task.*,&#13;
+src.main.java.com.wb.web.workflow.entity.*,&#13;
+src.main.java.com.wb.web.workflow.service.*,&#13;
+src.test.java.test.*</entry>
+<entry key="profiler.settings.istrument.getter.setter.methods">true</entry>
+<entry key="myeclipse.profiling.mode">0</entry>
+<entry key="ProfilerMemorySettings_stacktraces">-1</entry>
+<entry key="profiler.settings.sampling.interval">10</entry>
+<entry key="profiler.settings.cpu.profiling.type">0</entry>
+</properties>

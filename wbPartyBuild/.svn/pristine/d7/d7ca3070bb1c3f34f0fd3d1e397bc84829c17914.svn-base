@@ -1,0 +1,9 @@
+.content-tt{font-size: 24px;text-align: center;color: #9B0B13;font-weight: bold;padding: 24px 0;}
+.part1,.part2,.part3{margin: 10px 0 30px 40px;font-size: 18px;}
+.nodewrapper{ height: auto !important; }
+.level_1 .node{width: 124px;padding: 8px 20px;}
+.level_2 .nodewrapper+.nodewrapper{margin-top: 24px;}
+.level_2 .node{font-size: 16px;padding:6px 4px;background-color: #EBEDF1;color:#444444;width: 240px; }
+.part2 .level_2 .nodewrapper+.nodewrapper{margin-top: 30px;}
+.part3 .level_2 .nodewrapper+.nodewrapper{margin-top: 30px;}
+.level_2 .nodewrapper:before {content: none; height: 0;}

@@ -1,0 +1,302 @@
+package com.wb.web.portals.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+
+import com.wb.core.common.entity.BaseEntity;
+
+@Entity
+@Table(name="cy_content")
+public class Content extends BaseEntity implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4386784847390486506L;
+	public static final short DEL_STATUS = 0;
+	public static final short NORMAL_STATUS = 1;
+	
+	public static final short NOT_INDEX_FLAG = 0;
+	public static final short IN_INDEX_FLAG = 1;
+	public static final short AUTO_IN_INDEX_FLAG = 2;
+	
+	public static final short APP_STATUS_INDEX = 1;
+	public static final short APP_STATUS_DEFAULT = 0;
+		
+	
+	
+	private ColumnMu columnMu;	//栏目
+	private String titlePrefix; //标题前缀
+	private String title;		//标题
+	private String content;		//内容
+	private String pattern;		//缩略图
+	private String viewPath;	//图片原图或视频预览路径	
+	private Date createTime;	//创建时间
+	private String author;		//作者
+	private String source;		//来源
+	private Integer sortNum;	//排序号
+	private Short indexFlag;	//首页标志   0：不置于首页 1：置于首页 2：系统自动编排置于首页
+	private Long baseFileId;	//视频文件或者缩略图图片的id
+	private Short status;		//状态  0：删除  1：正常
+	private String updateBy;	
+	private String historyColumn;  //历史的栏目标题
+	private Content parent;		   //如果栏目为周刊类型,这里表示属于那一期的周刊
+	private Set<Content> children; //如果栏目为周刊类型,这里表示有哪些周刊内容
+	private ThemeActivity activity;		//城建人对应活动;
+	
+	private String seeOrgId;      //可以查看的部门id（多个部门以逗号(英文)隔开）
+	private Short appStatus;	  //1: 手机置顶  0：默认	
+	
+	
+	public Content(){}
+	
+	
+	public Content(ColumnMu columnMu,String titlePrefix,String title, String content,
+			String pattern, String author, String source, Integer sortNum,
+			Short indexFlag,Date createTime,String updateBy) {
+		super();
+		this.columnMu = columnMu;
+		this.titlePrefix = titlePrefix;
+		this.title = title;
+		this.content = content;
+		this.pattern = pattern;
+		this.author = author;
+		this.source = source;
+		this.sortNum = sortNum;	
+		this.indexFlag = indexFlag;
+		this.updateBy = updateBy;
+		this.createTime = createTime;
+		this.status = NORMAL_STATUS;
+		
+	}
+	
+	
+	public Content(ColumnMu columnMu,String titlePrefix,String title,
+			String author, String source, Integer sortNum,
+			Short indexFlag,Content parent,Date createTime,String updateBy) {
+		super();
+		this.columnMu = columnMu;
+		this.titlePrefix = titlePrefix;
+		this.title = title;
+		this.author = author;
+		this.source = source;
+		this.sortNum = sortNum;	
+		this.indexFlag = indexFlag;
+		this.updateBy = updateBy;
+		this.parent = parent;
+		this.createTime = createTime;
+		this.status = NORMAL_STATUS;
+		
+	}
+	
+	
+	@ManyToOne(targetEntity=ColumnMu.class)
+	@JoinColumn(name="columnmu_id")
+	public ColumnMu getColumnMu() {
+		return columnMu;
+	}
+	public void setColumnMu(ColumnMu columnMu) {
+		this.columnMu = columnMu;
+	}
+	
+
+	@Column(name="title_prefix",length=20)
+	public String getTitlePrefix() {
+		return titlePrefix;
+	}
+
+
+	public void setTitlePrefix(String titlePrefix) {
+		this.titlePrefix = titlePrefix;
+	}
+
+	
+
+	@Column(name="title",length=80,nullable=false)
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	@Type(type="text")
+	@Column(name="content")
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	
+	@Column(name="pattern",length=80)
+	public String getPattern() {
+		return pattern;
+	}
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}		
+	
+	@Column(name="view_path",length=80)
+	public String getViewPath() {
+		return viewPath;
+	}
+
+	public void setViewPath(String viewPath) {
+		this.viewPath = viewPath;
+	}
+
+
+	@Column(name="create_time")
+	public Date getCreateTime() {
+		return createTime;
+	}
+	
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+	
+	@Column(name="author",length=32)
+	public String getAuthor() {
+		return author;
+	}
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+	
+	@Column(name="source",length=32)
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String source) {
+		this.source = source;
+	}
+	
+	@Column(name="sort_num")
+	public Integer getSortNum() {
+		return sortNum;
+	}
+	public void setSortNum(Integer sortNum) {
+		this.sortNum = sortNum;
+	}
+	
+	@Column(name="index_flag",nullable=false)
+	public Short getIndexFlag() {
+		return indexFlag;
+	}
+
+
+	public void setIndexFlag(Short indexFlag) {
+		this.indexFlag = indexFlag;
+	}
+
+
+
+	@Column(name="base_file_id")
+	public Long getBaseFileId() {
+		return baseFileId;
+	}
+	
+	public void setBaseFileId(Long baseFileId) {
+		this.baseFileId = baseFileId;
+	}
+	
+	@Column(name="status",nullable=false)
+	public Short getStatus() {
+		return status;
+	}
+	public void setStatus(Short status) {
+		this.status = status;
+	}
+	@Column(name="update_by")
+	public String getUpdateBy() {
+		return updateBy;
+	}
+	public void setUpdateBy(String updateBy) {
+		this.updateBy = updateBy;
+	}
+
+	@Column(name="history_column",length=80)
+	public String getHistoryColumn() {
+		return historyColumn;
+	}
+
+	public void setHistoryColumn(String historyColumn) {
+		this.historyColumn = historyColumn;
+	}
+
+
+	@ManyToOne(targetEntity=Content.class)
+	@JoinColumn(name="parent_id")	
+	public Content getParent() {
+		return parent;
+	}
+
+
+	public void setParent(Content parent) {
+		this.parent = parent;
+	}
+
+
+	@OneToMany(targetEntity=Content.class)
+	@JoinColumn(name="parent_id")
+	public Set<Content> getChildren() {
+		return children;
+	}
+
+
+	public void setChildren(Set<Content> children) {
+		this.children = children;
+	}
+
+	@OneToOne(targetEntity=ThemeActivity.class)
+	@JoinColumn(name="activity_id")
+	public ThemeActivity getActivity() {
+		return activity;
+	}
+
+
+	public void setActivity(ThemeActivity activity) {
+		this.activity = activity;
+	}
+
+
+	@Column(name="see_org_id",length=1000)
+	public String getSeeOrgId() {
+		return seeOrgId;
+	}
+
+
+	public void setSeeOrgId(String seeOrgId) {
+		this.seeOrgId = seeOrgId;
+	}
+
+	@Column(name="app_status")
+	public Short getAppStatus() {
+		return appStatus;
+	}
+
+
+	public void setAppStatus(Short appStatus) {
+		this.appStatus = appStatus;
+	}
+
+	
+	
+	
+	
+	
+	
+}

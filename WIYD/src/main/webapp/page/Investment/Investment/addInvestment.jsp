@@ -56,7 +56,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         <div class="ui-form form_classify form-1">
 	      <div class="ui-form-item">
 	            <div class="ui-form-item-title">请输入编号：</div>
-	            <div class="ui-input-block"><input type="text" class="ui-input" id="documentName" placeholder="忽略则默认为文件名称"></div>
+	            <div class="ui-input-block"><input type="text" class="ui-input" id="number" placeholder="忽略则默认为文件名称"></div>
 	            <a href="javascript:void(0)" onclick="addInvestment()" class="ui-btn">新增</a>
 	      </div>
 	      

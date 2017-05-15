@@ -336,6 +336,23 @@
 			<artifactId>jedis</artifactId>
 			<version>2.8.1</version>
 		</dependency>
+		<dependency>  
+        <groupId>org.redisson</groupId>  
+	        <artifactId>redisson</artifactId>  
+	        <version>1.0.2</version>  
+	    </dependency>
+	    
+	    <dependency>  
+	        <groupId>org.springframework.data</groupId>  
+	        <artifactId>spring-data-redis</artifactId>  
+	        <version>1.6.2.RELEASE</version>  
+	    </dependency>
+	    
+	    <dependency>
+		    <groupId>org.springframework.session</groupId>
+		    <artifactId>spring-session</artifactId>
+		    <version>1.3.0.RELEASE</version>
+		</dependency>
 		
 		<!-- 上传文件工具包,解析request获取文件 -->
 		<dependency>

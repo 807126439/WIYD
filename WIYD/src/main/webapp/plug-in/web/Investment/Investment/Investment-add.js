@@ -41,8 +41,10 @@
     	$(this).parent().remove();
     });
   
-  function Investment(){
-	  
+  function addInvestment(){
+	  data={
+		    	 'number':$("#number").val()
+	  		};
 	  	$.ajax({
 		      type: "POST",
 		      url: path+"/investmentController/LoadInvestment.do",

@@ -24,6 +24,28 @@
     </plugins>
   </build>
   
+ <properties>
+    <spring.version>4.1.6.RELEASE</spring.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <security.version>3.2.9.RELEASE</security.version>
+    <druid-version>1.0.31</druid-version>
+ </properties>
+ 
+    <repositories>
+        <repository>
+            <id>opensesame.releases</id>
+            <url>
+                http://maven.aliyun.com/nexus/content/groups/public/
+            </url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+  
   <dependencies>
   	<!-- spring -->
 		<dependency>
@@ -128,6 +150,14 @@
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.2</version>
+		</dependency>
+		
+		
+		<!-- 数据库连接管理,替代c3p0 -->
+		<dependency>
+		    <groupId>com.alibaba</groupId>
+		    <artifactId>druid</artifactId>
+		    <version>${druid-version}</version>
 		</dependency>
 		
 		

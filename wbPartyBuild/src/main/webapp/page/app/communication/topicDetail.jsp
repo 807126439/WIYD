@@ -27,7 +27,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
       <div class="issue-hd">
         <div class="issue-tt">${result.title}</div>
         <div class="author">${result.sponsor}</div>
-        <div class="pdate">${result.startDate}</div>
+        <div class="pdate">  <fmt:formatDate value="${result.startDate}" type="date"/></div>
         <div class="reply-call"><i class="icon_reply"></i></div>
       </div>
       <div class="issue-bd">
@@ -35,6 +35,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
           <div class="textwrap">${result.content}</div>
         </div>
       </div>
+      <div class="video-wrapper">
+   	 	<div id="a1"></div>
+    </div>
     </div>
     <div class="comment_container" id="commentContainer">
       <div class="redtitle">
@@ -92,11 +95,30 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
   <%@include file="/page/app/common/footer.jsp" %>
   <input id="totalPage" value="${totalPage}" type="hidden">
+   <input type="hidden" value="${result.videoPath}" id="mPath">
   <script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/layer/2.1/layer.js"></script> 
   <script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/laypage/1.2/laypage.js"></script> 
   <script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.config.js"></script>
   <script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.all.js"></script>
   <script type="text/javascript" src="<%=path %>/plug-in/app/js/issue.js"></script>
+   <script type="text/javascript" src="${path}/plug-in/h-ui/lib/ckplayer/ckplayer.js" charset="utf-8"></script>
+   <script type="text/javascript">	
+   
+   	   var mPath = $("#mPath").val();   
+	   if(mPath!=null && mPath!=""){
+		   var flashvars={
+				    f:$("#mPath").val(),
+				    c:0,
+				    p:2,
+				    b:0,
+				    loaded:'loadedHandler'
+				  };
+			
+				  var params={bgcolor:'#FFF',allowFullScreen:true,allowScriptAccess:'always',wmode:'transparent'};
+				  var video=[$("#mPath").val()];
+				  CKobject.embed('../plug-in/h-ui/lib/ckplayer/ckplayer.swf','a1','ckplayer_a1','100%','100%',false,flashvars,video,params);
+	   }			
+    </script>
 </body>
 </html>

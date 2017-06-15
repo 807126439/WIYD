@@ -526,7 +526,15 @@ public class IndexController extends BaseController {
 		else if(name.equals("introduction")){
 			name="orgStructure/"+name;
 		}
-		else if(name.equals("orgStructure")||name.equals("partyMemberList")||name.equals("union")||name.equals("communist")||name.equals("womenList")){
+		//--------------------------组织架构获取结构树由页面渲染------------------------
+		else if(name.equals("orgStructure")){
+			name="orgStructure/orgStructure2";
+			String departmentTree=this.departmentService.getDepartmentJsonTreeById(depId);
+			req.setAttribute("departmentTree", departmentTree);
+			System.out.print(departmentTree);
+			
+		}
+		else if(name.equals("partyMemberList")||name.equals("union")||name.equals("communist")||name.equals("womenList")){
 			DepartmentDTO2 dto=this.departmentService.getDepartmentById2(depId);
 			if(dto == null){
 				return "activity/common/empty-activity.ftl";

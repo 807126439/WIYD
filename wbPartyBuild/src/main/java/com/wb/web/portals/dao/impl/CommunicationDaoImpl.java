@@ -162,4 +162,20 @@ public class CommunicationDaoImpl extends BaseDaoImpl<Long, Communication> imple
 	
 	}
 
+
+	@Override
+	public CommunicationDTO getCommunicationBySql(Long id) {
+		String sql = "select a.id,a.content,a.title,a.sponsor,a.start_date as startDate,a.end_date as endDate,a.love,a.status,a.video_id as videoId,b.file_name as videoName from cy_communication a left join m_base_file b on a.video_id = b.id where a.id = :id";		
+		Query query = this.getSession().createSQLQuery(sql)
+				      .addScalar("id", LongType.INSTANCE).addScalar("status", ShortType.INSTANCE)
+				      .addScalar("title", StringType.INSTANCE).addScalar("content", StringType.INSTANCE)	
+				      .addScalar("sponsor", StringType.INSTANCE).addScalar("startDate", TimestampType.INSTANCE)				
+				      .addScalar("endDate", TimestampType.INSTANCE)
+				      .addScalar("videoId", LongType.INSTANCE).addScalar("videoName", StringType.INSTANCE)
+				      .setParameter("id",id)
+					.setResultTransformer(Transformers.aliasToBean(CommunicationDTO.class));	
+		
+		return (CommunicationDTO) query.uniqueResult();
+	}
+
 }

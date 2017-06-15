@@ -38,6 +38,7 @@ public class Communication extends BaseEntity implements Serializable{
 	private Integer love;       //点赞数	
 	private Short status;       // 活跃-1 归档-2	
 	private Set<User> voter;	//点赞者
+	private Long videoId;
 	
 	
 	public Communication() {
@@ -57,6 +58,7 @@ public class Communication extends BaseEntity implements Serializable{
 		this.content = content;
 		this.sponsor = sponsor;
 		this.startDate = startDate;
+		this.endDate = endDate;
 		this.status = status;
 		this.love = love;
 	}
@@ -132,6 +134,17 @@ public class Communication extends BaseEntity implements Serializable{
 
 	public void setVoter(Set<User> voter) {
 		this.voter = voter;
+	}
+
+
+	@Column(name="video_id")
+	public Long getVideoId() {
+		return videoId;
+	}
+
+
+	public void setVideoId(Long videoId) {
+		this.videoId = videoId;
 	}
 	
 	

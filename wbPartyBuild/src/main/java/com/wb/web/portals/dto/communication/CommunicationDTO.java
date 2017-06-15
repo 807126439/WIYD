@@ -19,6 +19,10 @@ public class CommunicationDTO  extends BaseQueryDTO{
 	private Integer love;	        //点赞数
 	private Integer commentNums;    //评论总数	
 	private Short type;        //更新类型   1-修改状态  2-修改属性  3-点赞  4-取消点赞
+	private Long videoId;
+	private String uuid;
+	private String videoName;
+	private String videoPath;
 	
 	public Integer getCommentNums() {
 		return commentNums;
@@ -44,8 +48,8 @@ public class CommunicationDTO  extends BaseQueryDTO{
 	public void setSponsor(String sponsor) {
 		this.sponsor = sponsor;
 	}
-	
-	@JsonFormat(pattern="yyyy-MM-dd")  
+
+	@JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+08:00")  
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -59,7 +63,7 @@ public class CommunicationDTO  extends BaseQueryDTO{
 		this.content = content;
 	}
 
-	@JsonFormat(pattern="yyyy-MM-dd")  
+	@JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+08:00")  
 	public Date getEndDate() {
 		return endDate;
 	}
@@ -96,7 +100,30 @@ public class CommunicationDTO  extends BaseQueryDTO{
 	public void setType(Short type) {
 		this.type = type;
 	}
-	
+	public Long getVideoId() {
+		return videoId;
+	}
+	public void setVideoId(Long videoId) {
+		this.videoId = videoId;
+	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	public String getVideoName() {
+		return videoName;
+	}
+	public void setVideoName(String videoName) {
+		this.videoName = videoName;
+	}
+	public String getVideoPath() {
+		return videoPath;
+	}
+	public void setVideoPath(String videoPath) {
+		this.videoPath = videoPath;
+	}
 	
 		
 }

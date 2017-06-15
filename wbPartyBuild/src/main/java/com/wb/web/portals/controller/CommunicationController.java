@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.wb.core.common.bean.Page;
 import com.wb.core.common.controller.BaseController;
 import com.wb.core.common.dto.AjaxJson;
 import com.wb.core.spring.security.gobal.MyRequestParam;
+import com.wb.core.utils.UUIDGenerator;
 import com.wb.web.portals.dto.communication.CommunicationDTO;
 import com.wb.web.portals.dto.communication.CommunicationQueryDTO;
 import com.wb.web.portals.service.ICommunicationService;
@@ -52,7 +54,8 @@ public class CommunicationController extends BaseController{
 		 * @return
 		 */
 		@RequestMapping(params=MyRequestParam.add,method={RequestMethod.GET})
-		public String skipAddCommun(HttpServletRequest request){				
+		public String skipAddCommun(HttpServletRequest request){		
+			request.setAttribute("uuid", UUIDGenerator.getUUID());
 			return "portals/communication/addCommun.jsp";
 		}
 		
@@ -101,7 +104,8 @@ public class CommunicationController extends BaseController{
 		 */
 		@RequestMapping(params=MyRequestParam.edit,method={RequestMethod.GET})
 		public ModelAndView loadCommunDetail(HttpServletRequest request,@RequestParam(value="comId",required=true)Long comId){			
-			CommunicationDTO result = this.communicationService.getCommunicationById(comId);
+			CommunicationDTO result = this.communicationService.getCommunicationBySql(comId);
+			request.setAttribute("uuid", UUIDGenerator.getUUID());
 			request.setAttribute("comItem", result);				
 			return new ModelAndView("portals/communication/editCommun.jsp");
 				
@@ -147,5 +151,16 @@ public class CommunicationController extends BaseController{
 			Page<CommunicationDTO> dtoPage=this.communicationService.getAppPage(queryDTO);
 			return dtoPage;				
 		}
+		
+		
+		@RequestMapping("/uploadVideo")
+		@ResponseBody
+		public AjaxJson uploadPhoneVideo(@RequestParam(value="file")CommonsMultipartFile file,String ucode){
+			
+			this.communicationService.uploadVideo(ucode,file);
+			return new AjaxJson("success", AjaxJson.success);
+		}
+		
+		
 			
 }

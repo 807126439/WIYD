@@ -1,17 +1,27 @@
 package com.wb.web.portals.service.impl;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.wb.core.common.bean.Page;
 import com.wb.core.common.service.BaseService;
 import com.wb.core.common.utils.Assert;
 import com.wb.core.utils.HTMLUtil;
+import com.wb.web.base.dao.IBaseFileDao;
+import com.wb.web.base.dto.result.SaveResult;
+import com.wb.web.base.entity.BaseFile;
+import com.wb.web.base.service.IBaseFileService;
 import com.wb.web.portals.dao.ICommentDao;
 import com.wb.web.portals.dao.ICommunicationDao;
 import com.wb.web.portals.dto.communication.CommunicationDTO;
@@ -22,6 +32,7 @@ import com.wb.web.portals.entity.Communication;
 import com.wb.web.portals.service.ICommentService;
 import com.wb.web.portals.service.ICommunicationService;
 import com.wb.web.system.entity.User;
+import com.wb.web.system.service.IZonePathService;
 
 @Service("communicationService")
 @Transactional
@@ -33,6 +44,16 @@ public class CommunicationServiceImpl extends BaseService implements ICommunicat
 	private ICommentService commentService;
 	@Resource
 	private ICommentDao commentDao;
+	
+	@Resource
+	private IBaseFileService baseFileService;
+	@Resource
+	private IBaseFileDao baseFileDao;
+	@Resource
+	private IZonePathService zonePathService;
+	
+	
+	
 
 	
 	/**
@@ -57,11 +78,31 @@ public class CommunicationServiceImpl extends BaseService implements ICommunicat
 				Communication.STATUS_ACTIVE,
 				0
 				);
+
+		if(StringUtils.isNotBlank(dto.getUuid())){
+
+			//根据uuid查出上传文档
+			Long baseFileId = null;		
+			Set<SaveResult> saveResults= this.getTempCacheVal(dto.getUuid());
+						
+			
+			for (SaveResult saveResult : saveResults) {
+				baseFileId = saveResult.getId();
+			}
+			
+
+				
+			if(baseFileId!=null){					
+				com.setVideoId(baseFileId);					
+			}
+				
+		}
+		
 		this.communDao.save(com);	
 	}
 	
 	/**
-	 * 删除议题先删除评论
+	 * 删除议题先删除评论	
 	 */
 	@Override
 	public void deleteCommunication(Long[] ids) {
@@ -75,6 +116,14 @@ public class CommunicationServiceImpl extends BaseService implements ICommunicat
 						this.commentDao.delete(comment);
 					}					
 				}
+				
+				if(com.getVideoId()!=null){
+					BaseFile baseFile = this.baseFileDao.getById(com.getVideoId());
+					if(baseFile!=null){
+						this.baseFileDao.delete(baseFile);				
+					}					
+				}
+				
 				this.communDao.delete(com);
 			}			
 			if(i%20 == 0){
@@ -104,6 +153,32 @@ public class CommunicationServiceImpl extends BaseService implements ICommunicat
 			com.setTitle(dto.getTitle());			
 			com.setSponsor(dto.getSponsor());
 			com.setStartDate(dto.getStartDate());
+			
+			
+			if(StringUtils.isNotBlank(dto.getUuid())){
+
+				//根据uuid查出上传文档
+				Long baseFileId = null;		
+				Set<SaveResult> saveResults= this.getTempCacheVal(dto.getUuid());
+							
+				
+				for (SaveResult saveResult : saveResults) {
+					baseFileId = saveResult.getId();
+				}
+				
+				//判断是否已经存在videoId
+				if(com.getVideoId()!=null){				
+					if(baseFileId!=null){					
+						BaseFile baseFile = this.baseFileDao.getById(com.getVideoId());
+						if(baseFile!=null){
+							this.baseFileDao.delete(baseFile);				
+						}					
+					}
+				}				
+				com.setVideoId(baseFileId);				
+					
+			}
+			
 			
 			
 		}else if(dto.getType() == 3){
@@ -140,8 +215,14 @@ public class CommunicationServiceImpl extends BaseService implements ICommunicat
 		Assert.notNull(id, "id must not be null");	
 		
 		Communication com = this.communDao.getById(id);
-		CommunicationDTO dto = new CommunicationDTO();
-		this.getMapper().map(com, dto);		
+			
+		CommunicationDTO dto = this.getCommunicationBySql(id);
+		
+		
+		if(com.getVideoId()!=null){		
+			String phoneViewPath = this.baseFileService.getFileViewPath(com.getVideoId());
+			dto.setVideoPath(phoneViewPath);
+		}
 		
 		
 		//统计评论数
@@ -231,11 +312,42 @@ public class CommunicationServiceImpl extends BaseService implements ICommunicat
 		}
 		return dtoPage;	
 	}
+
 	
 	
+
+
 	
+
+	private Map<String, Set<SaveResult>> tempCache = new ConcurrentHashMap<String, Set<SaveResult>>();
+
+	@Override
+	public void uploadVideo(String ucode, CommonsMultipartFile uploadFile) {
+		
+		Assert.hasText(ucode, "uuid could not be null");
+		Assert.notNull(uploadFile, "uploadFile could not be null");
+		
+		SaveResult as = this.baseFileService.addPublicBaseFile(uploadFile);
 	
-	
-	
+		if(tempCache.containsKey(ucode)){				
+			tempCache.get(ucode).add(as);			
+		}else{
+			Set<SaveResult> objSet = new HashSet<SaveResult>();
+			objSet.add(as);
+			tempCache.put(ucode, objSet);			
+		}	
+		
+	}
+
+	public Set<SaveResult> getTempCacheVal(String uuid){		
+		return this.tempCache.get(uuid);		
+	}
+
+	@Override
+	public CommunicationDTO getCommunicationBySql(Long id) {
+		// TODO Auto-generated method stub
+		return this.communDao.getCommunicationBySql(id);
+	}
+
 
 }

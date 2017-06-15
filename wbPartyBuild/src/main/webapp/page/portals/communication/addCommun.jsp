@@ -21,6 +21,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<meta http-equiv="description" content="This is my page">
 	
 	<%@include file="/page/common/script/mytop.jsp" %>
+	<link href="<%=path %>/plug-in/h-ui/lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
 	 
 
   </head>
@@ -32,20 +33,40 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	  <form action="<%=path %>/communController/addCommun.do" method="post" class="form form-horizontal" id="form-commun-add" >
 	  	
 		
+		<input type="hidden" id="uuid" name="uuid" value="${uuid}">
 		<div class="row cl">
 			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>议题：</label>
 			<div class="formControls col-xs-8 col-sm-8">
-				<input type="text" class="input-text"  name="title"  datatype="*2-80"  nullmsg="议题不能为空">
+				<input type="text" class="input-text"  name="title" id="title" datatype="*2-80"  nullmsg="议题不能为空">
 			</div>
 			<div class="col-sm-2"></div>
 		</div>
 		<div class="row cl">
 			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>发起人：</label>
 			<div class="formControls col-xs-4 col-sm-3">
-				<input type="text" class="input-text"  name="sponsor"  datatype="*2-30"  nullmsg="发起人不能为空">
+				<input type="text" class="input-text"  name="sponsor" id="sponsor" datatype="*2-30"  nullmsg="发起人不能为空">
 			</div>
 			<div class="col-sm-3"></div>
 		</div>
+		
+			      
+	    <div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2">视频：</label>
+			<div class="formControls col-xs-8 col-sm-8">
+				<div id="uploader" class="wu-example">
+				    <!--用来存放文件信息-->
+				    <div id="thelist" class="uploader-list"></div>
+			    	<div class="btns">
+				        <div id="picker">选择文件</div>
+				        <a href="javascript:void(0);" id="ctlBtn" class="btn btn-default" style="display:none">开始上传</a>
+				        <a href="javascript:void(0);"  id="cencleBtn" class="btn btn-default" style="display:none">撤销</a>
+				    </div>					    	
+				</div>			
+			</div>
+			<div class="col-xs-2 col-sm-2"></div>
+		</div>	
+		
+		
 		
 		
 		<div class="row cl">
@@ -65,7 +86,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			   <div class="col-xs-5 col-sm-5"></div>
 		</div>
 		
-			
+			 
 		<div class="row cl">
 		    	<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>结束日期：</label>
 			    <div class="formControls col-xs-3 col-sm-3">
@@ -95,7 +116,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 	<%@include file="/page/common/script/operbuttom.jsp" %>
  	<script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.config.js"></script> 
-	<script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.all.min.js"></script> 
+	<script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.all.min.js"></script>	
+    <script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/webuploader/0.1.5/webuploader.min.js"></script> 
     <script type="text/javascript" src="<%=path %>/plug-in/web/scripts/portals/communication/commun-add.js"></script> 
 		
 </body>

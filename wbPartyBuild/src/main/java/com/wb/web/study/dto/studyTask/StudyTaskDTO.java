@@ -3,6 +3,7 @@ package com.wb.web.study.dto.studyTask;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wb.web.study.dto.studyData.StudyDataDTO;
 
 
@@ -70,12 +71,16 @@ public class StudyTaskDTO {
 	public void setTaskMemo(String taskMemo) {
 		this.taskMemo = taskMemo;
 	}
+
+	@JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+08:00")  
 	public Date getStartTime() {
 		return startTime;
 	}
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
+
+	@JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+08:00")  
 	public Date getEndTime() {
 		return endTime;
 	}

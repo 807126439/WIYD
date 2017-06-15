@@ -3,7 +3,9 @@ package com.wb.web.system.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -17,12 +19,14 @@ import com.wb.core.common.dto.AjaxJson;
 import com.wb.core.common.exception.MyException;
 import com.wb.core.common.service.BaseService;
 import com.wb.core.common.utils.Assert;
+import com.wb.core.utils.JSONHelper;
 import com.wb.web.system.dao.IDepartmentDao;
 import com.wb.web.system.dto.department.DepartTreeDTO;
 import com.wb.web.system.dto.department.DepartmentDTO;
 import com.wb.web.system.dto.department.DepartmentDTO2;
 import com.wb.web.system.dto.department.DepartmentQueryDTO;
 import com.wb.web.system.dto.department.JobDepartRelationDTO;
+import com.wb.web.system.dto.department.SDrawingObj;
 import com.wb.web.system.entity.Department;
 import com.wb.web.system.entity.JobDepartRelation;
 import com.wb.web.system.service.IDepartmentService;
@@ -356,6 +360,36 @@ public class DepartmentServiceImpl extends BaseService implements IDepartmentSer
 		sb.append("]");
 	
 		return sb.toString();
+	}
+
+	@Override
+	public String getDepartmentJsonTreeById(String depId) {
+		DepartmentDTO2 dto = this.getDepartmentById2(depId);
+		SDrawingObj treeObj=this.packagingObj(dto);
+		return JSONHelper.bean2json(treeObj);
+	}
+	
+	//封装节点信息为SDrawingObj
+	public SDrawingObj packagingObj(DepartmentDTO2 dto){
+		SDrawingObj treeObj = new SDrawingObj();
+		treeObj.setTitle(dto.getDepartName());
+		
+		List<String> data=new ArrayList<String>();
+		for(JobDepartRelationDTO o:dto.getRelations()){
+			data.add(o.getJobName()+": "+o.getUserName());
+		}
+		treeObj.setData(data);
+		
+		List<SDrawingObj> children=new ArrayList<SDrawingObj>();
+		
+		Collections.sort(dto.getChildren());
+		
+		for(DepartmentDTO2 o2:dto.getChildren()){
+			children.add(this.packagingObj(o2));
+		}
+		treeObj.setChildren(children);
+		
+		return treeObj;
 	}
     
 	

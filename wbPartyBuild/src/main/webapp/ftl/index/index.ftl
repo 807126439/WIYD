@@ -163,6 +163,8 @@
 	<link href="${path}/plug-in/web/portals/css/common/common.css" rel="stylesheet" type="text/css" />
 	<link href="${path}/plug-in/web/portals/css/index/style.css" rel="stylesheet" type="text/css" />
 	<link href="${path}/plug-in/h-ui/lib/layer/2.4/skin/layer.css" rel="stylesheet" type="text/css" />
+	<link href="${path}/plug-in/bg-images/bg-images.css" rel="stylesheet" type="text/css" />	
+		
 	
 	<title>城建先锋</title>
 	
@@ -423,7 +425,7 @@
 									      </div>
 									      <div class="pic-text">${l.ctTitle}</div>
 									      </li>		    
-									      		   
+								      		   
 							      	  </#list>
 							      </ul>
 						      </div>

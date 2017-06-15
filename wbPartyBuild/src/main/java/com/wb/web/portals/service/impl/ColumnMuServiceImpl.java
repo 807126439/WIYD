@@ -905,10 +905,12 @@ public class ColumnMuServiceImpl extends BaseService implements IColumnMuService
 				User userdt = new User();
 				UserDTO userdto = new UserDTO();
 				userdt = this.userDao.getById(userId[i]);
-				userdto.setUserName(userdt.getUserName());
-				userdto.setId(userdt.getId());
-				userdto.setCheck(true);
-				userList.add(userdto);
+				if(userdt!=null){
+					userdto.setUserName(userdt.getUserName());
+					userdto.setId(userdt.getId());
+					userdto.setCheck(true);
+					userList.add(userdto);
+				}
 			}
 		}
 		return userList;

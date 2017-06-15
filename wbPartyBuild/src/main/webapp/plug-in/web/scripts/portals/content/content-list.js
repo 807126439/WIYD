@@ -20,7 +20,7 @@
 		            "bInfo" : true, //是否显示页脚信息，DataTables插件左下角显示记录数  
 		            "sPaginationType" : "full_numbers", //详细分页组，可以支持直接跳转到某页  
 		            "bSort" : true, //是否启动各个字段的排序功能  
-		            "aaSorting" : [[1, "asc"]], //默认的排序方式，第2列，升序排列  
+		            "aaSorting" : [[6, "desc"]], //默认的排序方式，第2列，升序排列  
 	            	"bFilter" : false, //是否启动过滤、搜索功能
 					"aoColumnDefs": [
 					 {

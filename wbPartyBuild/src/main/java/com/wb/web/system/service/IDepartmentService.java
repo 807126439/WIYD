@@ -28,5 +28,7 @@ public interface IDepartmentService {
 	public List<DepartTreeDTO> searchDepartmentZtree(DepartmentQueryDTO queryDTO);
 
 	public String getZtreeNodesByContentId(String[] seeOrgIds);
+
+	public String getDepartmentJsonTreeById(String depId);
 	
 }

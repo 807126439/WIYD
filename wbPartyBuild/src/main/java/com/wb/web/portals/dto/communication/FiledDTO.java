@@ -3,6 +3,7 @@ package com.wb.web.portals.dto.communication;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wb.web.portals.dto.comment.CommentDTO;
 
 public class FiledDTO {
@@ -12,6 +13,7 @@ public class FiledDTO {
 	private String content;     //议题简述	
 	private String sponsor;     //发起人
 	private Date startDate;     //开始时间
+	private Long videoId;
 	private Integer totalPage;
 	
 	private CommunicationDTO pre;
@@ -41,6 +43,8 @@ public class FiledDTO {
 	public void setSponsor(String sponsor) {
 		this.sponsor = sponsor;
 	}
+
+	@JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+08:00")  
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -71,5 +75,12 @@ public class FiledDTO {
 	public void setTotalPage(Integer totalPage) {
 		this.totalPage = totalPage;
 	}
+	public Long getVideoId() {
+		return videoId;
+	}
+	public void setVideoId(Long videoId) {
+		this.videoId = videoId;
+	}
+	
 	
 }

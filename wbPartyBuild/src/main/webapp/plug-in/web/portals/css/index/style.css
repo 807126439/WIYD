@@ -130,7 +130,7 @@ a{text-decoration:none;cursor:pointer; color:#09C;}
 .close{position:absolute;width:16px;height:16px;background:url(../../image/icon.png) no-repeat -438px -65px; float:right; right:5px; top:5px;}
 
 .QR-code{ width:93px; height:269px;  position:fixed;right:0px;top:266px; background:url(../../image/QR.gif);}
-.photo-activity{ width:150px; height:240px; position:fixed;left:0px;top:305px; background:url(../../image/photo-activity.jpg);}
+
 
 
 .biaoti{ width:250px; float:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:16px;}

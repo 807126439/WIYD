@@ -32,6 +32,7 @@
 		<link href="<%=path%>/plug-in/h-ui/static/h-ui.admin/skin/default/skin.css" id="skin" rel="stylesheet" type="text/css"/>
 		<link href="<%=path%>/plug-in/h-ui/static/h-ui.admin/css/style.css" rel="stylesheet" type="text/css"/>
 		<link href="<%=path%>/plug-in/h-ui/mod/css/myskin.css" rel="stylesheet" type="text/css" />
+		<link href="<%=path%>/plug-in/bg-images/bg-images.css" rel="stylesheet" type="text/css" />	
 		
 		<!--[if IE 6]>
 		<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
@@ -46,9 +47,11 @@
 	<body>
 	
 	<header class="navbar-wrapper">
-		<div class="navbar navbar-fixed-top">
+		<div class="navbar navbar-fixed-top">                             
 			<div class="container-fluid cl">
-				<a class="logo navbar-logo f-l mr-10" href="<%=path %>/index.do">	<img src="<%=path %>/plug-in/h-ui/mod/images/header-tt.png"></a>
+				<a class="logo navbar-logo f-l mr-10" href="<%=path %>/index.do">
+					<div class="admin-header-bg"></div>					
+				</a>
 				<a aria-hidden="false" class="nav-toggle Hui-iconfont visible-xs" href="javascript:;">&#xe667;</a>
 				<div class="my-header-user clearfix">
 		      <div class="my-header-user-avatar"><img src="<%=path %>/plug-in/h-ui/mod/images/user-default.png"></div>

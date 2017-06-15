@@ -15,4 +15,5 @@ public interface ICommunicationDao extends IBaseDao<Long, Communication>{
 		public List<CommunicationDTO> getListByCondition(CommunicationQueryDTO queryDTO);
 		public void deleteVote(Long comId,String userId);
 		public int countTotalSize();	
+		public CommunicationDTO getCommunicationBySql(Long id);
 }

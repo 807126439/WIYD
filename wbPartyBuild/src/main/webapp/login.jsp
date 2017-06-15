@@ -24,6 +24,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<link href="<%=path%>/plug-in/h-ui/static/h-ui.admin/css/style.css" rel="stylesheet" type="text/css" />
 		<link href="<%=path%>/plug-in/h-ui/lib/Hui-iconfont/1.0.7/iconfont.css" rel="stylesheet" type="text/css" />
 		<link href="<%=path%>/plug-in/h-ui/mod/css/myskin.css" rel="stylesheet" type="text/css" />
+		<link href="<%=path%>/plug-in/bg-images/bg-images.css" rel="stylesheet" type="text/css" />		
+				
 				
 		<!--[if IE 6]>
 		<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
@@ -39,7 +41,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 	<body>
 		<input type="hidden" id="TenantId" name="TenantId" value="" />
-		<div class="login-header"><img src="<%=path %>/plug-in/h-ui/mod/images/admin-login-tt.png"></div>
+		<div class="login-header"><div class="admin-login-bg"></div></div>
 			<div class="loginWraper">
 			  <div id="loginform" class="loginBox">
 			    <form class="form form-horizontal" name="login-form" action="<%=path %>/j_spring_security_check" method="post">

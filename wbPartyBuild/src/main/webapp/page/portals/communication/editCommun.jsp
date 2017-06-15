@@ -21,6 +21,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<meta http-equiv="description" content="This is my page">
 	
 	<%@include file="/page/common/script/mytop.jsp" %>
+	<link href="<%=path %>/plug-in/h-ui/lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
 	
 
   </head>
@@ -30,6 +31,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<div class="pd-20">
 	 <form action="<%=path %>/communController/editCommun.do" method="post" class="form form-horizontal" id="form-commun-edit" >       
 	    <input name="id" value="${comItem.id}" type="hidden">
+	    <input type="hidden" id="uuid" name="uuid" value="${uuid}">
 	    <input name="type" value="2" type="hidden">
 		<div class="row cl">
 			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>议题：</label>
@@ -46,6 +48,37 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div class="col-sm-3"></div>
 		</div>
 		
+		
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2">视频：</label>
+			<div class="formControls col-xs-8 col-sm-8">
+				<div id="uploader" class="wu-example">
+					<div id="thelist" class="uploader-list"></div>
+				   <c:choose> 
+				   	  <c:when test="${not empty comItem.videoName}">
+			   	  			<div id="phoneVideoName" class="item"> 
+						        <h4 class="info">${comItem.videoName}</h4>
+						    </div>
+						    <div class="btns">
+						        <div id="picker">重选</div>
+						        <a href="javascript:void(0);" id="ctlBtn" class="btn btn-default" style="display:none">开始上传</a>
+						        <a href="javascript:void(0);"  id="cencleBtn" class="btn btn-default" style="display:none">撤销</a>
+					   	   </div>	
+				   	  </c:when>				 
+				      <c:otherwise>			      
+				    	<div class="btns">
+					        <div id="picker">选择文件</div>
+					        <a href="javascript:void(0);" id="ctlBtn" class="btn btn-default" style="display:none">开始上传</a>
+					        <a href="javascript:void(0);"  id="cencleBtn" class="btn btn-default" style="display:none">撤销</a>
+					    </div>	
+				      </c:otherwise>
+				   </c:choose>
+				   
+				    				    	
+				</div>			
+			</div>
+			<div class="col-xs-2 col-sm-2"></div>
+		</div>	
 		
 		<div class="row cl">
 			<label class="form-label col-xs-4 col-sm-2">议题简述：</label>
@@ -92,12 +125,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 	<%@include file="/page/common/script/operbuttom.jsp" %>
 	<script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.config.js"></script> 
-	<script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.all.min.js"></script> 
+	<script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/ueditor/1.4.3.3/ueditor.all.min.js"></script> 	
+    <script type="text/javascript" src="<%=path %>/plug-in/h-ui/lib/webuploader/0.1.5/webuploader.min.js"></script> 
     <script type="text/javascript" src="<%=path %>/plug-in/web/scripts/portals/communication/commun-edit.js"></script>
-		
-	
+			
 </body>
-  
   
   
 </html>

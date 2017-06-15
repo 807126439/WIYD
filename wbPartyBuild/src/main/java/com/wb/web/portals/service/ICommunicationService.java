@@ -1,8 +1,12 @@
 package com.wb.web.portals.service;
 
 import java.util.List;
+import java.util.Set;
+
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.wb.core.common.bean.Page;
+import com.wb.web.base.dto.result.SaveResult;
 import com.wb.web.portals.dto.communication.CommunicationDTO;
 import com.wb.web.portals.dto.communication.CommunicationQueryDTO;
 import com.wb.web.portals.dto.communication.FiledDTO;
@@ -29,8 +33,11 @@ public interface ICommunicationService {
 	
 	public Page<CommunicationDTO> getAppPage(CommunicationQueryDTO queryDTO);
 	
-	
+	public void uploadVideo(String ucode,CommonsMultipartFile uploadFile);
+		
+	public Set<SaveResult> getTempCacheVal(String uuid);
 
+	public CommunicationDTO getCommunicationBySql(Long id);
 	
 	
 }

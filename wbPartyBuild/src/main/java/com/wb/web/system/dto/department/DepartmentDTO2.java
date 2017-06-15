@@ -9,7 +9,7 @@ import com.wb.core.common.dto.UUIDDto;
  * @author Java2
  *
  */
-public class DepartmentDTO2 extends UUIDDto{
+public class DepartmentDTO2 extends UUIDDto implements Comparable<DepartmentDTO2>{
 	
 	private String departName;		//部门名字
 	private String orgCode;			//部门机构代码	
@@ -96,6 +96,11 @@ public class DepartmentDTO2 extends UUIDDto{
 	}
 	public void setRelations(List<JobDepartRelationDTO> relations) {
 		this.relations = relations;
+	}
+	@Override
+	public int compareTo(DepartmentDTO2 o) {
+        int i = this.getSortNum() - o.getSortNum();//先按照年龄排序  
+        return i;
 	}
 	
 	

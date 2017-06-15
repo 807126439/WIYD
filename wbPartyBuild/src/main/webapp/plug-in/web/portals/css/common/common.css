@@ -88,8 +88,8 @@ body{height: 100%;min-width: 1120px;}
 	
 
 
-.navBar{ width:100%; height:38px;float: left; background-image:url(../../image/navbg.png); background-repeat:repeat-x;}
-.navLeft{ width:1120px;height:38px; margin:0 auto;}
+.navBar{ width:100%; height:38px;float: left; background-image:url(../../image/navbg.png); background-repeat:repeat-x;text-align:center}
+.navLeft{height:38px; margin:0 auto;display:inline-block}
 .navLeft li { float:left;  line-height:38px;}
 .navLeft li a{ float:left; height:38px;display:block; padding:0 0 0 17px; font-family:"Microsoft YaHei"; font-size:16px; color:#FFF;}
 .navLeft li span{ padding-left:19px; font-family:Arial, Helvetica, sans-serif;color:#ca1201;}

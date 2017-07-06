@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONObject;
@@ -20,10 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.spr.core.common.bean.AjaxJson;
 import com.spr.core.common.controller.BaseController;
-import com.spr.core.gobal.GobalVal;
 import com.spr.core.utils.http.HttpUtils;
-import com.spr.core.utils.json.JSONHelper;
 import com.spr.web.Investment.dto.UrlDTO;
+import com.spr.web.Investment.service.IFundService;
 
 @Controller
 @Scope("prototype")
@@ -31,6 +31,9 @@ import com.spr.web.Investment.dto.UrlDTO;
 public class InvestmentController extends BaseController {
 
 	private static final long serialVersionUID = 1L;
+	
+	@Resource
+	private IFundService fundService;
 
 	
 	// 跳转添加页面
@@ -46,17 +49,38 @@ public class InvestmentController extends BaseController {
 	@ResponseBody
 	public AjaxJson LoadInvestment(HttpServletRequest request,String fundId) throws Exception {
 		
-		UrlDTO dto=new UrlDTO(fundId, 1, 100, null, null);
+		//创建fund记录
+		this.fundService.addFund(fundId);
 		
-		byte[] messageByte=HttpUtils.sendGETRequest(dto.getUrl(), null, "utf-8");
-		String result=new String(messageByte,"utf-8");
-		//开始解析
+		String result="";
+		//载入文档
+		File file = new File("C:\\Users\\Java2\\Desktop\\软件\\dadad.txt");
+		
+		FileInputStream fis=new FileInputStream(file);
+		InputStreamReader isr=new InputStreamReader(fis, "gbk");
+		BufferedReader br = new BufferedReader(isr);
+		String line=null;
+		StringBuilder allText = new StringBuilder();
+		while((line=br.readLine())!= null){
+			allText.append(line);
+		}
+		System.out.println(allText.toString());
+		result=allText.toString();
+		
+		
+//		UrlDTO dto=new UrlDTO(fundId, 1, 100, null, null);
+//		
+//		byte[] messageByte=HttpUtils.sendGETRequest(dto.getUrl(), null, "utf-8");
+//		String result=new String(messageByte,"utf-8");
+//		//开始解析
 		String jsonData=result.substring(result.indexOf("=")+1, result.length()-1);
-		System.out.println(jsonData);
+		jsonData=jsonData.substring(0,jsonData.lastIndexOf(";"));
+		System.out.println("json数据:"+jsonData);
+		
 		JSONObject jsonObject = JSONObject.fromObject(jsonData);
 		String content = jsonObject.getString("content");
 		
-		System.out.println(content);
+		System.out.println("xml数据:"+content);
 		
 		//使用dom4j解析数据
 		Document document=DocumentHelper.parseText(content);
@@ -71,6 +95,7 @@ public class InvestmentController extends BaseController {
 			Iterator it2 = tr.elementIterator();
 			while(it2.hasNext()){
 				Element td =(Element) it2.next();
+				
 				System.out.println(td.getText());
 			}
 		}

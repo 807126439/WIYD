@@ -43,7 +43,7 @@
   
   function addInvestment(){
 	  data={
-		    	 'number':$("#number").val()
+		    	 'fundId':$("#number").val()
 	  		};
 	  	$.ajax({
 		      type: "POST",
@@ -58,9 +58,6 @@
 		    		  layer.msg(data.info,{icon: 1,time:2500});
 						setTimeout(function(){
 							
-							if(typeof(parent.goSearch)=="function"){
-								parent.goSearch();
-							}
 							location.replace(location.href);
 					      },500); 
 		    		}else{
@@ -70,6 +67,8 @@
 		    });
 	  
   }
+  
+  
   
   function addFile(type){
   	var keyword="";

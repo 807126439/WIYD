@@ -30,12 +30,14 @@ public class HttpUtils {
 
 		StringBuilder url = new StringBuilder(path);
 		url.append("?");
-		for(Map.Entry<String, String> entry : params.entrySet()){
-			url.append(entry.getKey()).append("=");
-			url.append(URLEncoder.encode(entry.getValue(), ecoding));
-			url.append("&");
+		if(params!=null){
+			for(Map.Entry<String, String> entry : params.entrySet()){
+				url.append(entry.getKey()).append("=");
+				url.append(URLEncoder.encode(entry.getValue(), ecoding));
+				url.append("&");
+			}
+			url.deleteCharAt(url.length() - 1);
 		}
-		url.deleteCharAt(url.length() - 1);
 		HttpURLConnection conn = (HttpURLConnection)new URL(url.toString()).openConnection();
 		conn.setConnectTimeout(5000);
 		conn.setRequestMethod("GET");

@@ -15,12 +15,16 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.context.annotation.Scope;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import redis.clients.jedis.ShardedJedis;
+
 import com.spr.core.common.bean.AjaxJson;
 import com.spr.core.common.controller.BaseController;
+import com.spr.core.redis.RedisDataSource;
 import com.spr.core.utils.http.HttpUtils;
 import com.spr.web.Investment.dto.UrlDTO;
 import com.spr.web.Investment.service.IFundService;
@@ -34,6 +38,8 @@ public class InvestmentController extends BaseController {
 	
 	@Resource
 	private IFundService fundService;
+	@Resource
+	private RedisDataSource redisDataSource;
 
 	
 	// 跳转添加页面
@@ -48,6 +54,9 @@ public class InvestmentController extends BaseController {
 	@RequestMapping(value = "/LoadInvestment")
 	@ResponseBody
 	public AjaxJson LoadInvestment(HttpServletRequest request,String fundId) throws Exception {
+		
+		//Jedis实例
+		ShardedJedis shardedJedis = redisDataSource.getRedisClient();
 		
 		//创建fund记录
 		this.fundService.addFund(fundId);
@@ -95,8 +104,10 @@ public class InvestmentController extends BaseController {
 			Iterator it2 = tr.elementIterator();
 			while(it2.hasNext()){
 				Element td =(Element) it2.next();
-				
 				System.out.println(td.getText());
+				
+				//调用Jedis保存内容
+				//shardedJedis.zadd("fund-"+fundId+"-value", score, member)
 			}
 		}
 		

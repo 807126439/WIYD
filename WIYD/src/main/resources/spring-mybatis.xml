@@ -119,6 +119,7 @@
 		   <list>
 		     <value>classpath:com/spr/web/system/dao/*.xml</value>
 		     <value>classpath:com/spr/web/file/dao/*.xml</value>
+		     <value>classpath:com/spr/web/Investment/dao/*.xml</value>
 		     <value>classpath:com/spr/web/grade/dao/*.xml</value>
 		     <value>classpath:com/spr/web/document/dao/*.xml</value>
 		     <value>classpath:com/spr/web/record/dao/*.xml</value>		     

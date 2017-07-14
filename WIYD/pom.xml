@@ -423,6 +423,13 @@
 		    <artifactId>dom4j</artifactId>
 		    <version>1.6.1</version>
 		</dependency>
+		
+		<!-- 数学分析工具解析工具 -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-math3</artifactId>
+		    <version>3.6.1</version>
+		</dependency>
 	
   </dependencies>
 </project>

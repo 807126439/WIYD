@@ -20,10 +20,10 @@
    <!--   <mvc:annotation-driven /> 默认配置spring的各种组件，会覆盖自已定义的组件-->
 	
     <!-- 加载controller的时候,不加载service,因为此时事务并未生效,若此时加载了service,那么事务无法对service进行拦截 -->
-	<context:component-scan base-package="com.spr.web.*">
-		<context:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Service" />
+	<context:component-scan base-package="com.spr.web.*" >
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" />
 	</context:component-scan>
+	<context:component-scan base-package="com.spr.core.redis.*"></context:component-scan>
 	
 	<!-- 使Dubbo兼容Spring 4注解配置  -->
 	<bean id="annotationBean" class="com.spr.core.dobbo.config.spring.AnnotationBean"/>

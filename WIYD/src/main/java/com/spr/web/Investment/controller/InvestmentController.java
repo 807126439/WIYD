@@ -4,16 +4,24 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -22,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import redis.clients.jedis.ShardedJedis;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.spr.core.common.bean.AjaxJson;
 import com.spr.core.common.controller.BaseController;
 import com.spr.core.redis.RedisDataSource;
@@ -84,12 +93,10 @@ public class InvestmentController extends BaseController {
 //		//开始解析
 		String jsonData=result.substring(result.indexOf("=")+1, result.length()-1);
 		jsonData=jsonData.substring(0,jsonData.lastIndexOf(";"));
-		System.out.println("json数据:"+jsonData);
 		
 		JSONObject jsonObject = JSONObject.fromObject(jsonData);
 		String content = jsonObject.getString("content");
 		
-		System.out.println("xml数据:"+content);
 		
 		//使用dom4j解析数据
 		Document document=DocumentHelper.parseText(content);
@@ -98,21 +105,62 @@ public class InvestmentController extends BaseController {
 		System.out.println(root.getName());
 		Element tbody = root.element("tbody");
 		Iterator it = tbody.elementIterator();
-		
-		while(it.hasNext()){
-			Element tr =(Element) it.next();
-			Iterator it2 = tr.elementIterator();
-			while(it2.hasNext()){
-				Element td =(Element) it2.next();
-				System.out.println(td.getText());
-				
+		//记录增长率
+		Map<BigDecimal,Integer> incrList = new HashMap<BigDecimal, Integer>();
+		//增长率
+		BigDecimal i = null;
+		//总和
+		BigDecimal sum = new BigDecimal(0);
+		//样本数量
+		int num =0;
+		if(!StringUtils.isBlank(fundId)){
+			while(it.hasNext()){
+				num++;
+				Element tr =(Element) it.next();
+				Iterator it2 = tr.elementIterator();
+				Node valueNode = tr.node(1);
+				Node dateNode = tr.node(0);
+				Node increNode = tr.node(3);
 				//调用Jedis保存内容
-				//shardedJedis.zadd("fund-"+fundId+"-value", score, member)
+				shardedJedis.hset("fund-"+fundId+"-value", dateNode.getText(), valueNode.getText());
+				shardedJedis.hset("fund-"+fundId+"-incr", dateNode.getText(), increNode.getText().replace("%", ""));
+				//incrList.add((new BigDecimal(increNode.getText().replace("%", ""))).setScale(2, BigDecimal.ROUND_HALF_UP));
+				if(incrList.containsKey(i = new BigDecimal(increNode.getText().replace("%", "")).setScale(1, BigDecimal.ROUND_HALF_UP))){
+					incrList.put(i, incrList.get(i)+1);
+				}else{
+					incrList.put(i, 1);
+				}
+				sum = sum.add(i);
 			}
 		}
 		
+		//计算正太分布常量
+		//平均数
+		BigDecimal average = sum.divide(new BigDecimal(num), 2, BigDecimal.ROUND_HALF_UP);
+		//求方差(数学期望)
+		BigDecimal varianceSum = new BigDecimal(0);
+		Iterator inIter = incrList.entrySet().iterator();
+		while (inIter.hasNext()) {
+			Map.Entry entry = (Map.Entry) inIter.next();
+			BigDecimal key = (BigDecimal)entry.getKey();
+			Integer val = (Integer)entry.getValue();
+			varianceSum = varianceSum.add(key.subtract(average).pow(2));
+		}
+		BigDecimal variance = varianceSum.divide(new BigDecimal(num), 2, BigDecimal.ROUND_HALF_UP);
 		
-
-		return new AjaxJson(this.ADD_SUCCESS_MESSAGE,AjaxJson.success);
+		//正态分布对象
+		//正态分布曲线数据
+		Map<Double,Double> distributionline = new LinkedHashMap<Double, Double>();
+		NormalDistribution normalDistributioin = new NormalDistribution(average.doubleValue(),variance.doubleValue());
+		for(double aa = -5 ; aa < 5 ; aa+=0.5 ){
+			distributionline.put(aa, normalDistributioin.density(aa));
+		}
+		
+		shardedJedis.close();
+		Map<String,Object> dataMap=new HashMap<String,Object>();
+		dataMap.put("incrList", incrList);
+		dataMap.put("distributionline", distributionline);
+		
+		return new AjaxJson(this.ADD_SUCCESS_MESSAGE,AjaxJson.success,dataMap);
 	}
 }

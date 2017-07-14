@@ -7,9 +7,6 @@
     //初始化使第一个类别被选中
     $(".radio_classify:first").prop("checked",'checked');
     $("#scoreShow").html("该类文的下载积分为:"+$(".radio_classify:checked").data('score')+"分");
-    
-
-    
      $('.radio_classify').iCheck({
        //checkbox皮肤
        checkboxClass: 'icheckbox_flat-green',
@@ -25,16 +22,11 @@
        $('.'+$(this).data('form')).removeClass('element-invisible');
        $(window).trigger('resize');
      })
-     
 //	var params1={fileNumLimit:1,formData:{"ucode":$("#ucode1").val()}};
 //	var params2={fileNumLimit:10,formData:{"ucode":$("#ucode2").val()}};
 //	
 //    var uploader1=createUploader2("#uploader1",params1);
 //    var uploader2=createUploader("#uploader2",params2);
-    
-    
-    
-	
   })
   
   	$('.itemtags-list').on('click','li .icon_close',function(){
@@ -56,16 +48,80 @@
 		      success: function(data) {
 		    	  if(data.status == "y" || data.status == "Y"){
 		    		  layer.msg(data.info,{icon: 1,time:2500});
-						setTimeout(function(){
-							
-							location.replace(location.href);
-					      },500); 
+		    		  
+		    		  
+		    		  //绘制静态分布图
+		    		  // 基于准备好的dom，初始化echarts实例
+		    	        var myChart = echarts.init(document.getElementById('ztChart'));
+		    	        var array = new Array();
+		    	        var j = 0;
+		    	        for(var i in data.data.incrList){
+		    	        	var element = new Array();
+		    	        	element[0] = i;
+		    	        	element[1] = data.data.incrList[i];
+		    	        	array[j] = element;
+		    	        	j++;
+		    	        }
+		    	        //正态曲线
+		    	        var distributionArray = new Array();
+		    	        j = 0;
+		    	        for(var i in data.data.distributionline){
+		    	        	var element = new Array();
+		    	        	element[0] = i;
+		    	        	element[1] = data.data.distributionline[i];
+		    	        	distributionArray[j] = element;
+		    	        	j++;
+		    	        }
+		    	        
+		    	        
+		    	        var myRegression = ecStat.regression('polynomial', array);
+
+			    		  myRegression.points.sort(function(a, b) {
+			    		      return a[0] - b[0];
+			    		  });
+		    	        
+		    	        
+		    		    //var array = [[0.0,4],[-0.1,3],[2.2,1],[-3.6,1],[0.9,3],[1.3,3],[-0.5,2],[3.6,1],[0.5,2],[-1.3,3],[-1.8,1],[-2.2,1],[-0.9,2],[-0.2,1],[2.1,2],[0.1,5],[1.0,3],[1.4,2],[-4.1,1],[-2.5,1],[-0.6,1],[3.7,1],[-4.5,1],[1.7,1],[-1.7,1],[-1.4,2],[-1.0,4],[-2.1,2],[0.2,3],[5.1,1],[-0.3,3],[2.4,2],[-3.8,1],[-2.8,1],[2.0,2],[-1.5,3],[2.8,1],[-2.0,2],[-5.1,1],[0.3,3],[1.2,2],[-0.4,1],[2.3,3],[-0.8,1],[-6.2,1],[1.6,1],[1.9,1],[-2.3,1],[-5.4,1],[3.5,1],[0.8,1],[-1.2,2],[3.1,1],[0.4,3],[-3.2,1],[-5.0,1]];
+		    	        // 指定图表的配置项和数据
+		    	        var option = {
+		    	            title: {
+		    	                text: '正态分布图'
+		    	            },
+		    	            tooltip: {},
+		    	            legend: {
+		    	                data:['次数']
+		    	            },
+		    	            xAxis: {
+		    	            },
+		    	            yAxis: [{
+		    	            	
+		    	            },{
+		    	            	name : "概率密度",
+		    	            	type : 'value',
+		    	            	axisLine : {
+		    	            		onZero : false
+		    	            	}
+		    	            }],
+		    	            series: [{
+		    	            	type: 'scatter',
+		    	            	data: array
+		    	            },{
+		    	                name: 'line',
+		    	                type: 'line',
+		    	                showSymbol: false,
+		    	                yAxisIndex : 1,
+		    	                data: distributionArray
+		    	            }]
+		    	        };
+		    	        // 使用刚指定的配置项和数据显示图表。
+		    	        alert(distributionArray);
+		    	        myChart.setOption(option);
+		    	        $('#zt-panel').show();
 		    		}else{
 		    			layer.msg(data.info,{icon: 2,time:2500});
 		    		}
 		      }
 		    });
-	  
   }
   
   
